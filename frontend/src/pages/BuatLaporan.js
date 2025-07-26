@@ -5,8 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 
 // Titik pusat area geo-fencing (misal: Bandung)
-const GEO_CENTER = { lat: -6.935694, lng: 107.659633};
-const GEO_RADIUS_M = 10000; // 5 km
+const GEO_CENTER = { lat: -6.911303, lng:  107.610311};
+const GEO_RADIUS_M = 5000; // 5 km
 
 function haversine(lat1, lon1, lat2, lon2) {
   function toRad(x) { return x * Math.PI / 180; }
@@ -35,6 +35,9 @@ const BuatLaporan = () => {
   const [error, setError] = useState('');
   const [location, setLocation] = useState({ lat: null, lng: null });
   const [locError, setLocError] = useState('');
+  const [previewUrls, setPreviewUrls] = useState([]);
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewIdx, setPreviewIdx] = useState(0);
 
   React.useEffect(() => {
     if (!('geolocation' in navigator)) {
@@ -103,7 +106,11 @@ const BuatLaporan = () => {
 
   const handleChange = (e) => {
     if (e.target.name === 'foto') {
-      setFormData({ ...formData, foto: Array.from(e.target.files) });
+      const files = Array.from(e.target.files);
+      setFormData({ ...formData, foto: files });
+      // Generate preview URLs
+      const urls = files.map(file => URL.createObjectURL(file));
+      setPreviewUrls(urls);
     } else {
       setFormData({ ...formData, [e.target.name]: e.target.value });
     }
@@ -298,6 +305,16 @@ const BuatLaporan = () => {
                 color: '#fff'
               }}
             />
+            {/* Preview Foto */}
+            {previewUrls.length > 0 && (
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginTop: 12 }}>
+                {previewUrls.map((url, idx) => (
+                  <div key={idx} style={{ position: 'relative', cursor: 'pointer' }} onClick={() => { setShowPreview(true); setPreviewIdx(idx); }}>
+                    <img src={url} alt={`preview-${idx}`} style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8, border: '1px solid #ccc' }} />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <button
@@ -321,6 +338,30 @@ const BuatLaporan = () => {
           </button>
         </form>
       </div>
+      {/* Lightbox Preview */}
+      {showPreview && previewUrls.length > 0 && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.8)',
+          zIndex: 9999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }} onClick={() => setShowPreview(false)}>
+          <img
+            src={previewUrls[previewIdx]}
+            alt={`preview-big-${previewIdx}`}
+            style={{
+              maxWidth: '90vw',
+              maxHeight: '90vh',
+              borderRadius: 12,
+              boxShadow: '0 4px 32px #0008',
+              background: '#fff'
+            }}
+          />
+        </div>
+      )}
     </Layout>
   );
 };
