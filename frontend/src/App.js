@@ -18,13 +18,14 @@ import DataPengguna from './pages/DataPengguna';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import LogAktivitas from './pages/LogAktivitas';
+import BlastWhatsApp from './pages/BlastWhatsapp'; // ✅ import di sini
 import './App.css';
+
 
 const PrivateRoute = ({ children, role }) => {
   const { user } = useAuth();
   if (!user) return <Navigate to="/" />;
   if (role && user.role !== role) {
-    // Redirect based on user role
     if (user.role === 'superadmin') return <Navigate to="/superadmin/laporan" />;
     if (user.role === 'admin') return <Navigate to="/admin/laporan" />;
     return <Navigate to="/dashboard" />;
@@ -37,13 +38,14 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          {/* Public Routes */}
+
+          {/* 🔓 Public Routes */}
           <Route path="/" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-          {/* User Routes */}
+          {/* 👤 User Routes */}
           <Route path="/dashboard" element={
             <PrivateRoute role="user"><Dashboard /></PrivateRoute>
           } />
@@ -57,7 +59,7 @@ function App() {
             <PrivateRoute role="user"><ProfilePage /></PrivateRoute>
           } />
 
-          {/* Admin Routes */}
+          {/* 🛠️ Admin Routes */}
           <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="/admin/dashboard" element={
             <PrivateRoute role="admin"><AdminDashboard /></PrivateRoute>
@@ -87,7 +89,12 @@ function App() {
             <PrivateRoute role="admin"><AdminCetakLaporan /></PrivateRoute>
           } />
 
-          {/* Super Admin Routes */}
+          {/* ✅ Admin Blast WhatsApp */}
+          <Route path="/admin/blast" element={
+            <PrivateRoute role="admin"><BlastWhatsApp /></PrivateRoute>
+          } />
+
+          {/* 🛡️ Super Admin Routes */}
           <Route path="/superadmin" element={<Navigate to="/superadmin/dashboard" replace />} />
           <Route path="/superadmin/dashboard" element={
             <PrivateRoute role="superadmin"><AdminDashboard /></PrivateRoute>
@@ -120,8 +127,14 @@ function App() {
             <PrivateRoute role="superadmin"><AdminCetakLaporan /></PrivateRoute>
           } />
 
-          {/* Catch all */}
+          {/* ✅ Superadmin Blast WhatsApp */}
+          <Route path="/superadmin/blast" element={
+            <PrivateRoute role="superadmin"><BlastWhatsApp /></PrivateRoute>
+          } />
+
+          {/* 🚧 Catch all */}
           <Route path="*" element={<Navigate to="/" replace />} />
+
         </Routes>
       </Router>
     </AuthProvider>

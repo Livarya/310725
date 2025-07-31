@@ -1,3 +1,4 @@
+// backend/controllers/authController.js
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -5,55 +6,60 @@ const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 
 exports.register = async (req, res) => {
-  console.log('REGISTER RAW BODY:', req.body);
-  console.log('REGISTER BODY:', req.body);
   try {
-    const { nip, nohp, nama, jabatan, username, email, password, role } = req.body;
-    if (!nip || !nohp || !nama || !jabatan || !username || !email || !password) {
-      console.log('REGISTER ERROR: Field kosong');
-      return res.status(400).json({ msg: 'Semua field wajib diisi' });
+    const { nip, whatsappNumber, nama, jabatan, email, password } = req.body;
+
+    const existingEmail = await User.findOne({ email });
+    const existingNip = await User.findOne({ nip });
+    if (existingEmail || existingNip) {
+      return res.status(400).json({ msg: 'Email atau NIP sudah terdaftar' });
     }
-    const existingUser = await User.findOne({ $or: [ { email }, { username }, { nip } ] });
-    if (existingUser) {
-      console.log('REGISTER ERROR: User sudah terdaftar');
-      return res.status(400).json({ msg: 'User sudah terdaftar' });
-    }
-    console.log('REGISTER: Hashing password...');
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-    // Validasi role
-    const allowedRoles = ['user','admin','superadmin'];
-    const finalRole = allowedRoles.includes(role) ? role : 'user';
-    console.log('REGISTER ROLE:', finalRole);
-    console.log('REGISTER: Membuat user baru...');
-    const user = new User({ nip, nohp, nama, jabatan, username, email, password: hashedPassword, role: finalRole });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = new User({
+      nip,
+      whatsappNumber,
+      nama,
+      jabatan,
+      email,
+      password: hashedPassword,
+      role: 'user'
+    });
+
     await user.save();
-    console.log('REGISTER SUCCESS:', user);
+
     res.status(201).json({ msg: 'Registrasi berhasil' });
-  } catch (err) {
-    console.error('REGISTER ERROR:', err);
-    res.status(500).json({ msg: 'Server error', error: err.message });
+  } catch (error) {
+    console.error('REGISTER ERROR:', error);
+    res.status(500).json({ msg: 'Server error' });
   }
 };
 
 exports.login = async (req, res) => {
   try {
     const { nip, password } = req.body;
+
     if (!nip || !password) {
       return res.status(400).json({ msg: 'Semua field wajib diisi' });
     }
+
     if (!/^\d{18}$/.test(nip)) {
       return res.status(400).json({ msg: 'NIP harus 18 digit angka' });
     }
+
     const user = await User.findOne({ nip });
     if (!user) {
       return res.status(400).json({ msg: 'User tidak ditemukan' });
     }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ msg: 'Password salah' });
     }
+
     const token = jwt.sign({ id: user._id, role: user.role }, 'supersecretjwtkey', { expiresIn: '1d' });
+
     res.json({
       token,
       user: {
@@ -61,7 +67,6 @@ exports.login = async (req, res) => {
         role: user.role,
         jabatan: user.jabatan,
         email: user.email,
-        username: user.username,
         nip: user.nip,
         nohp: user.nohp
       }
@@ -78,15 +83,13 @@ exports.forgotPassword = async (req, res) => {
   const user = await User.findOne({ email });
   if (!user) return res.status(400).json({ msg: 'User tidak ditemukan' });
 
-  // Generate token
   const token = crypto.randomBytes(32).toString('hex');
-  const expires = Date.now() + 3600000; // 1 jam
+  const expires = Date.now() + 3600000;
 
   user.resetPasswordToken = token;
   user.resetPasswordExpires = expires;
   await user.save();
 
-  // Kirim email
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -103,7 +106,6 @@ exports.forgotPassword = async (req, res) => {
   };
 
   await transporter.sendMail(mailOptions);
-
   res.json({ msg: 'Email reset password telah dikirim' });
 };
 

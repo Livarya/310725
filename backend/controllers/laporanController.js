@@ -70,59 +70,35 @@ exports.getLaporanById = async (req, res) => {
 
 exports.updateStatusLaporan = async (req, res) => {
   try {
-    const { status, catatan } = req.body;
-    if (!['Belum Dicek', 'Disetujui', 'Ditolak'].includes(status)) {
-      return res.status(400).json({ msg: 'Status tidak valid' });
-    }
-    
-    // Update laporan dengan catatan jika ada
-    const updateData = { status };
-    if (catatan) {
-      updateData.catatan = catatan;
-    }
-    
-    // Dapatkan laporan dengan data user
+    const { status } = req.body;
+    const { id } = req.params;
+
     const laporan = await Laporan.findByIdAndUpdate(
-      req.params.id,
-      updateData,
+      id,
+      { status },
       { new: true }
     ).populate('user');
-    
-    if (!laporan) return res.status(404).json({ msg: 'Laporan tidak ditemukan' });
-    
-    // Catat log jika status Disetujui/Ditolak
-    if (status === 'Disetujui' || status === 'Ditolak') {
-      await catatLog(laporan._id, status === 'Disetujui' ? 'Disetujui' : 'Ditolak', req.user.id);
-      
-      // Kirim notifikasi WhatsApp jika status berubah menjadi Disetujui atau Ditolak
-      try {
-        // Dapatkan data lengkap user
-        const user = await User.findById(laporan.user._id);
-        
-        if (user && user.whatsappNumber) {
-          // Kirim notifikasi WhatsApp
-          sendStatusNotification(
-            user.whatsappNumber,
-            user.nama,
-            status,
-            laporan.nama_merk,
-            catatan || '' // Kirim catatan jika ada
-          ).then(sent => {
-            console.log(`Notifikasi WhatsApp ${sent ? 'berhasil' : 'gagal'} dikirim ke ${user.nama}`);
-          }).catch(err => {
-            console.error('Error saat mengirim notifikasi WhatsApp:', err);
-          });
-        }
-      } catch (notifErr) {
-        console.error('Error saat memproses notifikasi:', notifErr);
-        // Tidak menghentikan proses meskipun notifikasi gagal
-      }
+
+    if (!laporan) {
+      return res.status(404).json({ msg: 'Laporan tidak ditemukan' });
     }
-    
-    res.json(laporan);
+
+    // Tambahkan validasi untuk user
+    if (!laporan.user || !laporan.user._id) {
+      console.warn('User tidak tersedia dalam laporan:', laporan);
+      return res.status(400).json({ msg: 'Data user pada laporan tidak tersedia atau rusak' });
+    }
+
+    const user = await User.findById(laporan.user._id);
+
+    if (user && user.whatsappNumber) {
+      await sendStatusNotification(user.whatsappNumber, laporan);
+    }
+
+    res.json({ msg: 'Status laporan diperbarui', laporan });
   } catch (err) {
-    console.error('Error saat update status:', err);
-    res.status(500).json({ msg: 'Server error' });
+    console.error('Error saat memproses notifikasi:', err);
+    res.status(500).json({ msg: 'Server error', error: err.message });
   }
 };
 

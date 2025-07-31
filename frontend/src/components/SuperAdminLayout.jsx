@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { FaUsers, FaClipboardList, FaHistory, FaSignOutAlt, FaBars, FaCheckCircle, FaTimesCircle, FaTachometerAlt } from 'react-icons/fa';
+import { 
+  FaUsers, FaClipboardList, FaHistory, FaSignOutAlt, FaBars, 
+  FaCheckCircle, FaTimesCircle, FaTachometerAlt, FaPaperPlane 
+} from 'react-icons/fa';
 import backgroundImage from '../assets/gedung-sate.jpg';
 import logo from '../assets/logo.png';
 
@@ -11,7 +14,6 @@ const SuperAdminLayout = ({ children, title }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Define menu items with icon components
   const menu = [
     { label: 'Dashboard', path: '/superadmin/dashboard', icon: FaTachometerAlt },
     { label: 'Semua Laporan', path: '/superadmin/laporan', icon: FaClipboardList },
@@ -19,6 +21,7 @@ const SuperAdminLayout = ({ children, title }) => {
     { label: 'Laporan Ditolak', path: '/superadmin/laporan-ditolak', icon: FaTimesCircle },
     { label: 'Data Pengguna', path: '/superadmin/users', icon: FaUsers },
     { label: 'Log Aktivitas', path: '/superadmin/logs', icon: FaHistory },
+    { label: 'Blast WhatsApp', path: '/superadmin/blast', icon: FaPaperPlane },
     { label: 'Logout', path: '/logout', icon: FaSignOutAlt, action: () => { logout(); navigate('/'); } },
   ];
 
@@ -33,9 +36,7 @@ const SuperAdminLayout = ({ children, title }) => {
   return (
     <div 
       className="app-background"
-      style={{ 
-        '--bg-image': `url(${backgroundImage})`
-      }}
+      style={{ '--bg-image': `url(${backgroundImage})` }}
     >
       {/* Topbar */}
       <div style={{
@@ -159,10 +160,6 @@ const SuperAdminLayout = ({ children, title }) => {
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
                   borderLeft: location.pathname === item.path ? '4px solid #2563eb' : '4px solid transparent',
-                  '&:hover': {
-                    background: 'rgba(37, 99, 235, 0.1)',
-                    color: '#fff'
-                  }
                 }}
               >
                 <span style={{ fontSize: '18px', marginRight: '12px' }}>

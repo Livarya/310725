@@ -11,6 +11,20 @@ const client = new Client({
   }
 });
 
+const blastMessage = async (users, customMessage) => {
+  for (const user of users) {
+    const formattedNumber = formatPhoneNumber(user.phone);
+    const message = `Halo ${user.name},\n\n${customMessage}`;
+    try {
+      await client.sendMessage(formattedNumber, message);
+      console.log(`Pesan terkirim ke ${user.phone}`);
+    } catch (err) {
+      console.error(`Gagal kirim ke ${user.phone}:`, err.message);
+    }
+  }
+};
+
+
 // Generate QR Code untuk autentikasi
 client.on('qr', (qr) => {
   console.log('QR CODE untuk WhatsApp:');
@@ -156,5 +170,6 @@ const initWhatsApp = () => {
 module.exports = {
   initWhatsApp,
   sendStatusNotification,
-  sendPdfReport
-}; 
+  sendPdfReport,
+  blastMessage // tambahkan ini
+};
