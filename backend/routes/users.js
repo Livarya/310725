@@ -10,9 +10,7 @@ router.get('/me', auth, getMe);
 router.put('/me', auth, updateUser);
 router.put('/me/password', auth, changePassword);
 
-router.get('/', auth, isAdmin, getAllUsers);
-router.get('/:id', auth, isAdmin, getUserById);
-
+// PENTING: Route spesifik harus di atas route dengan parameter
 // Endpoint stats admin
 router.get('/admin/stats', auth, isAdmin, async (req, res) => {
   try {
@@ -36,4 +34,8 @@ router.get('/admin/recent-laporan', auth, isAdmin, async (req, res) => {
   }
 });
 
-module.exports = router; 
+// Route dengan parameter harus di bawah route spesifik
+router.get('/', auth, isAdmin, getAllUsers);
+router.get('/:id', auth, isAdmin, getUserById);
+
+module.exports = router;
