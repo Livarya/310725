@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
+import axiosInstance from '../axiosInstance';
 import { useAuth } from '../context/AuthContext';
 import { FaPrint, FaArrowLeft } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
@@ -13,7 +13,7 @@ const AdminCetakLaporan = () => {
 
   useEffect(() => {
     document.title = 'BERITA ACARA - Bapenda Kota Bandung';
-    axios.get(`/api/laporan/${id}`, { headers: { Authorization: `Bearer ${token}` } })
+    axiosInstance.get(`/api/laporan/${id}`, { headers: { Authorization: `Bearer ${token}` } })
       .then(res => setLaporan(res.data))
       .catch(() => setLaporan(null));
     // Kembalikan title jika keluar dari halaman
@@ -114,33 +114,36 @@ const AdminCetakLaporan = () => {
         boxSizing: 'border-box'
       }} className="halaman-pertama">
         {/* Header Instansi */}
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '30px' }}>
-          <img src="/assets/logo.png" alt="Logo" style={{ height: '60px', marginRight: '18px' }} />
-          <div style={{ flex: 1, textAlign: 'left' }}>
-            <h1 style={{ 
-              margin: '0',
-              fontSize: '18px',
-              fontWeight: 'bold',
-              textTransform: 'uppercase'
-            }}>
-              PEMERINTAH KOTA BANDUNG
-            </h1>
-            <h2 style={{ 
-              margin: '5px 0',
-              fontSize: '16px',
-              fontWeight: 'bold',
-              textTransform: 'uppercase'
-            }}>
-              BADAN PENGELOLAAN PENDAPATAN DAERAH
-            </h2>
-            <p style={{ 
-              margin: '5px 0',
-              fontSize: '12px'
-            }}>
-              Jl. Wastukencana No. 2 Telp. (022) 422 2323 - Bandung
-            </p>
-          </div>
-        </div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '30px' }}>
+  <img src="/assets/bandung.png" alt="Logo Bandung" style={{ height: '60px' }} />
+  
+  <div style={{ flex: 1, textAlign: 'center' }}>
+    <h1 style={{ 
+      margin: '0',
+      fontSize: '18px',
+      fontWeight: 'bold',
+      textTransform: 'uppercase'
+    }}>
+      PEMERINTAH KOTA BANDUNG
+    </h1>
+    <h2 style={{ 
+      margin: '5px 0',
+      fontSize: '16px',
+      fontWeight: 'bold',
+      textTransform: 'uppercase'
+    }}>
+      BADAN PENGELOLAAN PENDAPATAN DAERAH
+    </h2>
+    <p style={{ 
+      margin: '5px 0',
+      fontSize: '12px'
+    }}>
+      Jl. Wastukencana No. 2 Telp. (022) 422 2323 - Bandung
+    </p>
+  </div>
+
+  <img src="/assets/logo.png" alt="Logo Instansi" style={{ height: '60px' }} />
+</div>
 
         {/* Judul Berita Acara */}
         <div style={{ textAlign: 'center', marginBottom: '30px' }}>

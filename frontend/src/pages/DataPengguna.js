@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import { FaEdit, FaTrash, FaPlus, FaSearch } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaPlus, FaSearch, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import AdminLayout from '../components/AdminLayout';
 import SuperAdminLayout from '../components/SuperAdminLayout';
 
@@ -263,74 +263,149 @@ const DataPengguna = () => {
               </tr>
             </thead>
             <tbody>
-              {users
-                .filter(u => 
-                  u.nama.toLowerCase().includes(search.toLowerCase()) ||
-                  u.username.toLowerCase().includes(search.toLowerCase()) ||
-                  u.email.toLowerCase().includes(search.toLowerCase())
-                )
-                .filter(u => !roleFilter || u.role === roleFilter)
-                .filter(u => !statusFilter || u.status === statusFilter)
-                .map((user, index) => (
-                  <tr key={user._id} style={{
-                    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-                    '&:last-child': { borderBottom: 'none' }
-                  }}>
-                    <td style={{ padding: '12px 16px' }}>{user.nama}</td>
-                    <td style={{ padding: '12px 16px' }}>{user.username}</td>
-                    <td style={{ padding: '12px 16px' }}>{user.email}</td>
-                    <td style={{ padding: '12px 16px' }}>{user.role}</td>
-                    <td style={{ padding: '12px 16px' }}>
-                      <span style={{
-                        padding: '4px 8px',
-                        borderRadius: '4px',
-                        background: user.status === 'aktif' ? 'rgba(74, 222, 128, 0.2)' : 'rgba(248, 113, 113, 0.2)',
-                        color: user.status === 'aktif' ? '#4ade80' : '#f87171',
-                        fontSize: '12px',
-                        fontWeight: '500'
-                      }}>
-                        {user.status === 'aktif' ? 'Aktif' : 'Nonaktif'}
-                      </span>
-                    </td>
-                    <td style={{ padding: '12px 16px', textAlign: 'right' }}>
-                      <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                        <button
-                          onClick={() => {
-                            setModalType('edit');
-                            setEditUser(user);
-                            setForm(user);
-                            setModalOpen(true);
-                          }}
-                          style={{
-                            padding: '6px',
-                            borderRadius: '6px',
-                            border: 'none',
-                            background: '#2563eb',
-                            color: '#fff',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          <FaEdit size={14} />
-                        </button>
-                        <button
-                          onClick={() => setDeleteId(user._id)}
-                          style={{
-                            padding: '6px',
-                            borderRadius: '6px',
-                            border: 'none',
-                            background: '#ef4444',
-                            color: '#fff',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          <FaTrash size={14} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+              {paged.map((user, index) => (
+                <tr key={user._id} style={{
+                  borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+                  '&:last-child': { borderBottom: 'none' }
+                }}>
+                  <td style={{ padding: '12px 16px' }}>{user.nama}</td>
+                  <td style={{ padding: '12px 16px' }}>{user.username}</td>
+                  <td style={{ padding: '12px 16px' }}>{user.email}</td>
+                  <td style={{ padding: '12px 16px' }}>{user.role}</td>
+                  <td style={{ padding: '12px 16px' }}>
+                    <span style={{
+                      padding: '4px 8px',
+                      borderRadius: '4px',
+                      background: user.status === 'aktif' ? 'rgba(74, 222, 128, 0.2)' : 'rgba(248, 113, 113, 0.2)',
+                      color: user.status === 'aktif' ? '#4ade80' : '#f87171',
+                      fontSize: '12px',
+                      fontWeight: '500'
+                    }}>
+                      {user.status === 'aktif' ? 'Aktif' : 'Nonaktif'}
+                    </span>
+                  </td>
+                  <td style={{ padding: '12px 16px', textAlign: 'right' }}>
+                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                      <button
+                        onClick={() => {
+                          setModalType('edit');
+                          setEditUser(user);
+                          setForm(user);
+                          setModalOpen(true);
+                        }}
+                        style={{
+                          padding: '6px',
+                          borderRadius: '6px',
+                          border: 'none',
+                          background: '#2563eb',
+                          color: '#fff',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        <FaEdit size={14} />
+                      </button>
+                      <button
+                        onClick={() => setDeleteId(user._id)}
+                        style={{
+                          padding: '6px',
+                          borderRadius: '6px',
+                          border: 'none',
+                          background: '#ef4444',
+                          color: '#fff',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        <FaTrash size={14} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
+        </div>
+
+        {/* Pagination */}
+        {maxPage > 1 && (
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '12px',
+            background: 'rgba(30, 41, 59, 0.5)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: '12px',
+            padding: '16px',
+            border: '1px solid rgba(255, 255, 255, 0.1)'
+          }}>
+            <button
+              onClick={() => setPage(Math.max(1, page - 1))}
+              disabled={page === 1}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 12px',
+                borderRadius: '8px',
+                border: 'none',
+                background: page === 1 ? 'rgba(255, 255, 255, 0.1)' : '#2563eb',
+                color: page === 1 ? 'rgba(255, 255, 255, 0.4)' : '#fff',
+                cursor: page === 1 ? 'not-allowed' : 'pointer',
+                fontSize: '14px'
+              }}
+            >
+              <FaChevronLeft size={12} /> Sebelumnya
+            </button>
+            
+            <div style={{ display: 'flex', gap: '4px' }}>
+              {Array.from({ length: maxPage }, (_, i) => i + 1).map(p => (
+                <button
+                  key={p}
+                  onClick={() => setPage(p)}
+                  style={{
+                    padding: '8px 12px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    background: p === page ? '#2563eb' : 'rgba(255, 255, 255, 0.1)',
+                    color: p === page ? '#fff' : 'rgba(255, 255, 255, 0.7)',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: p === page ? '600' : '400'
+                  }}
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setPage(Math.min(maxPage, page + 1))}
+              disabled={page === maxPage}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 12px',
+                borderRadius: '8px',
+                border: 'none',
+                background: page === maxPage ? 'rgba(255, 255, 255, 0.1)' : '#2563eb',
+                color: page === maxPage ? 'rgba(255, 255, 255, 0.4)' : '#fff',
+                cursor: page === maxPage ? 'not-allowed' : 'pointer',
+                fontSize: '14px'
+              }}
+            >
+              Selanjutnya <FaChevronRight size={12} />
+            </button>
+          </div>
+        )}
+
+        {/* Info */}
+        <div style={{
+          textAlign: 'center',
+          color: 'rgba(255, 255, 255, 0.6)',
+          fontSize: '14px'
+        }}>
+          Menampilkan {((page-1)*perPage)+1}-{Math.min(page*perPage, filtered.length)} dari {filtered.length} pengguna
         </div>
       </div>
 

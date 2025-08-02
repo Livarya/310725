@@ -21,37 +21,53 @@ const LaporanDisetujui = () => {
 
   useEffect(() => {
     fetchLaporan();
-  }, [tanggal]);
+  }, [tanggal, token]); // Tambahkan token sebagai dependency
 
   const fetchLaporan = async () => {
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+    
     setLoading(true);
     try {
       const res = await axios.get('/api/laporan', { 
         headers: { Authorization: `Bearer ${token}` } 
       });
-      setLaporan(res.data.filter(l => l.status === 'Disetujui'));
-    } catch {
+      
+      // Pastikan res.data adalah array dan filter dengan aman
+      const laporanData = Array.isArray(res.data) ? res.data : [];
+      setLaporan(laporanData.filter(l => l.status === 'Disetujui'));
+    } catch (error) {
+      console.error('Error fetching laporan:', error);
       setLaporan([]);
+      toast.error('Gagal memuat data laporan');
     }
     setLoading(false);
   };
 
   const filtered = laporan.filter(l => {
+    if (!l) return false; // Pastikan l tidak null/undefined
+    
     const matchSearch =
-      l.nama_merk.toLowerCase().includes(search.toLowerCase()) ||
-      l.user?.nama?.toLowerCase().includes(search.toLowerCase()) ||
-      l.npwpd.toLowerCase().includes(search.toLowerCase());
-    const matchTanggal = tanggal ? l.tanggal.slice(0, 10) === tanggal : true;
+      (l.nama_merk && l.nama_merk.toLowerCase().includes(search.toLowerCase())) ||
+      (l.user?.nama && l.user.nama.toLowerCase().includes(search.toLowerCase())) ||
+      (l.npwpd && l.npwpd.toLowerCase().includes(search.toLowerCase()));
+    
+    const matchTanggal = tanggal ? (l.tanggal && l.tanggal.slice(0, 10) === tanggal) : true;
     return matchSearch && matchTanggal;
   });
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`/api/laporan/${modal.id}`, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.delete(`/api/laporan/${modal.id}`, { 
+        headers: { Authorization: `Bearer ${token}` } 
+      });
       toast.success('Laporan dihapus');
       setModal({ open: false, id: null });
       fetchLaporan();
-    } catch {
+    } catch (error) {
+      console.error('Error deleting laporan:', error);
       toast.error('Gagal hapus laporan');
     }
   };
@@ -59,10 +75,13 @@ const LaporanDisetujui = () => {
   const handleSetujui = async (id, e) => {
     e.stopPropagation();
     try {
-      await axios.put(`/api/laporan/${id}/status`, { status: 'Disetujui' }, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.put(`/api/laporan/${id}/status`, { status: 'Disetujui' }, { 
+        headers: { Authorization: `Bearer ${token}` } 
+      });
       toast.success('Laporan disetujui');
       fetchLaporan();
-    } catch {
+    } catch (error) {
+      console.error('Error approving laporan:', error);
       toast.error('Gagal menyetujui laporan');
     }
   };
@@ -70,10 +89,13 @@ const LaporanDisetujui = () => {
   const handleTolak = async (id, e) => {
     e.stopPropagation();
     try {
-      await axios.put(`/api/laporan/${id}/status`, { status: 'Ditolak' }, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.put(`/api/laporan/${id}/status`, { status: 'Ditolak' }, { 
+        headers: { Authorization: `Bearer ${token}` } 
+      });
       toast.success('Laporan ditolak');
       fetchLaporan();
-    } catch {
+    } catch (error) {
+      console.error('Error rejecting laporan:', error);
       toast.error('Gagal menolak laporan');
     }
   };
@@ -84,10 +106,95 @@ const LaporanDisetujui = () => {
     navigate(`${prefix}/laporan/${id}`);
   };
 
+  // Loading state
   if (loading) {
     return (
       <Layout title="Laporan Disetujui">
-        <div style={{ color: '#fff', textAlign: 'center' }}>Memuat data...</div>
+        <div style={{ 
+          color: '#fff', 
+          textAlign: 'center',
+          padding: '40px',
+          fontSize: '16px'
+        }}>
+          Memuat data...
+        </div>
+      </Layout>
+    );
+  }
+
+  // No data state
+  if (!loading && filtered.length === 0) {
+    return (
+      <Layout title="Laporan Disetujui">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          {/* Search and Filter Controls */}
+          <div style={{
+            display: 'flex',
+            gap: '16px',
+            flexWrap: 'wrap',
+            background: 'rgba(30, 41, 59, 0.5)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: '12px',
+            padding: '16px',
+            border: '1px solid rgba(255, 255, 255, 0.1)'
+          }}>
+            <input
+              type="text"
+              placeholder="Cari laporan..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              style={{
+                flex: '1',
+                minWidth: '200px',
+                padding: '8px 16px',
+                borderRadius: '8px',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                background: 'rgba(255, 255, 255, 0.1)',
+                color: '#fff',
+                fontSize: '14px'
+              }}
+            />
+            <input
+              type="date"
+              value={tanggal}
+              onChange={(e) => setTanggal(e.target.value)}
+              style={{
+                padding: '8px 16px',
+                borderRadius: '8px',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                background: 'rgba(255, 255, 255, 0.1)',
+                color: '#fff',
+                fontSize: '14px'
+              }}
+            />
+          </div>
+          
+          {/* No data message */}
+          <div style={{
+            textAlign: 'center',
+            padding: '60px 20px',
+            color: 'rgba(255, 255, 255, 0.7)',
+            fontSize: '16px'
+          }}>
+            {laporan.length === 0 ? 
+              'Belum ada laporan yang disetujui' : 
+              'Tidak ada laporan yang sesuai dengan filter'
+            }
+          </div>
+        </div>
+        
+        <ToastContainer 
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          style={{ zIndex: 9999 }}
+        />
       </Layout>
     );
   }
@@ -152,26 +259,45 @@ const LaporanDisetujui = () => {
                 gap: '18px',
                 border: '1px solid rgba(255, 255, 255, 0.1)',
                 cursor: 'pointer',
-                transition: 'transform 0.2s, box-shadow 0.2s',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 6px 16px rgba(0, 0, 0, 0.3)'
-                }
+                transition: 'transform 0.2s, box-shadow 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.3)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = 'none';
               }}
             >
               <div style={{ flex: 1, color: '#fff' }}>
-                <div style={{ fontWeight: '600', fontSize: '16px' }}>{l.nama_merk}
-                  <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', marginLeft: '8px' }}>({l.npwpd})</span>
+                <div style={{ fontWeight: '600', fontSize: '16px' }}>
+                  {l.nama_merk || 'Nama tidak tersedia'}
+                  <span style={{ 
+                    color: 'rgba(255,255,255,0.7)', 
+                    fontSize: '14px', 
+                    marginLeft: '8px' 
+                  }}>
+                    ({l.npwpd || 'NPWPD tidak tersedia'})
+                  </span>
                 </div>
-                <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', margin: '4px 0' }}>{l.alamat}</div>
+                <div style={{ 
+                  color: 'rgba(255,255,255,0.7)', 
+                  fontSize: '14px', 
+                  margin: '4px 0' 
+                }}>
+                  {l.alamat || 'Alamat tidak tersedia'}
+                </div>
                 <div style={{ fontSize: '13px' }}>
                   <span style={{
                     color: '#4ade80',
                     fontWeight: 600,
                     marginRight: '12px'
-                  }}>Disetujui</span>
+                  }}>
+                    Disetujui
+                  </span>
                   <span style={{ color: 'rgba(255,255,255,0.6)' }}>
-                    {new Date(l.tanggal).toLocaleString()}
+                    {l.tanggal ? new Date(l.tanggal).toLocaleString() : 'Tanggal tidak tersedia'}
                   </span>
                 </div>
               </div>
@@ -186,8 +312,10 @@ const LaporanDisetujui = () => {
                     background: 'rgba(59, 130, 246, 0.5)',
                     border: '1px solid rgba(59, 130, 246, 0.2)',
                     color: '#fff',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    transition: 'background 0.2s'
                   }}
+                  title="Lihat Detail"
                 >
                   <FaEye size={16} />
                 </button>
@@ -199,8 +327,10 @@ const LaporanDisetujui = () => {
                     background: 'rgba(34, 197, 94, 0.5)',
                     border: '1px solid rgba(34, 197, 94, 0.2)',
                     color: '#fff',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    transition: 'background 0.2s'
                   }}
+                  title="Setujui Laporan"
                 >
                   <FaCheckCircle size={16} />
                 </button>
@@ -212,8 +342,10 @@ const LaporanDisetujui = () => {
                     background: 'rgba(239, 68, 68, 0.5)',
                     border: '1px solid rgba(239, 68, 68, 0.2)',
                     color: '#fff',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    transition: 'background 0.2s'
                   }}
+                  title="Tolak Laporan"
                 >
                   <FaTimesCircle size={16} />
                 </button>
@@ -225,7 +357,8 @@ const LaporanDisetujui = () => {
                     background: 'rgba(239, 68, 68, 0.5)',
                     border: '1px solid rgba(239, 68, 68, 0.2)',
                     color: '#fff',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    transition: 'background 0.2s'
                   }}
                   title="Hapus Laporan"
                 >
@@ -233,6 +366,7 @@ const LaporanDisetujui = () => {
                 </button>
               </div>
 
+              {/* Image */}
               {Array.isArray(l.foto) && l.foto.length > 0 && (
                 <div style={{
                   minWidth: '80px',
@@ -244,12 +378,15 @@ const LaporanDisetujui = () => {
                 }}>
                   <img 
                     src={`http://localhost:5000/uploads/${l.foto[0]}`} 
-                    alt="foto" 
+                    alt="foto laporan"
                     style={{
                       width: '100%',
                       height: '100%',
                       objectFit: 'cover'
-                    }} 
+                    }}
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                    }}
                   />
                 </div>
               )}
@@ -257,6 +394,7 @@ const LaporanDisetujui = () => {
           ))}
         </div>
       </div>
+      
       <ToastContainer 
         position="top-right"
         autoClose={3000}
@@ -269,6 +407,7 @@ const LaporanDisetujui = () => {
         pauseOnHover
         style={{ zIndex: 9999 }}
       />
+      
       {/* Modal konfirmasi hapus */}
       {modal.open && (
         <div style={{
@@ -290,7 +429,12 @@ const LaporanDisetujui = () => {
             minWidth: '320px',
             textAlign: 'center'
           }}>
-            <div style={{ marginBottom: '24px', color: '#111', fontWeight: 600, fontSize: '18px' }}>
+            <div style={{ 
+              marginBottom: '24px', 
+              color: '#111', 
+              fontWeight: 600, 
+              fontSize: '18px' 
+            }}>
               Yakin ingin menghapus laporan ini?
             </div>
             <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
@@ -306,7 +450,9 @@ const LaporanDisetujui = () => {
                   fontSize: '16px',
                   cursor: 'pointer'
                 }}
-              >Hapus</button>
+              >
+                Hapus
+              </button>
               <button
                 onClick={() => setModal({ open: false, id: null })}
                 style={{
@@ -319,7 +465,9 @@ const LaporanDisetujui = () => {
                   fontSize: '16px',
                   cursor: 'pointer'
                 }}
-              >Batal</button>
+              >
+                Batal
+              </button>
             </div>
           </div>
         </div>

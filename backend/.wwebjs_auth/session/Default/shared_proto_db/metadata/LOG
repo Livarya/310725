@@ -1,2 +1,3 @@
-2025/07/30-14:16:06.208 c04 Creating DB D:\bapbapbap\BAP-laporan\backend\.wwebjs_auth\session\Default\shared_proto_db\metadata since it was missing.
-2025/07/30-14:16:06.289 c04 Reusing MANIFEST D:\bapbapbap\BAP-laporan\backend\.wwebjs_auth\session\Default\shared_proto_db\metadata/MANIFEST-000001
+2025/08/01-16:02:16.335 3348 Reusing MANIFEST D:\bapbapbap\BAP-laporan\backend\.wwebjs_auth\session\Default\shared_proto_db\metadata/MANIFEST-000001
+2025/08/01-16:02:16.335 3348 Recovering log #3
+2025/08/01-16:02:16.336 3348 Reusing old log D:\bapbapbap\BAP-laporan\backend\.wwebjs_auth\session\Default\shared_proto_db\metadata/000003.log 

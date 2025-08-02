@@ -6,7 +6,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import AdminLayout from '../components/AdminLayout';
 import SuperAdminLayout from '../components/SuperAdminLayout';
-import { FaEye, FaCheckCircle, FaTimesCircle, FaTrash } from 'react-icons/fa';
+import { FaEye, FaCheckCircle, FaTimesCircle, FaTrash, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
 const LaporanDitolak = () => {
   const { token, user } = useAuth();
@@ -15,6 +15,8 @@ const LaporanDitolak = () => {
   const [tanggal, setTanggal] = useState('');
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState({ open: false, id: null });
+  const [page, setPage] = useState(1);
+  const perPage = 10;
   const navigate = useNavigate();
 
   const Layout = user?.role === 'superadmin' ? SuperAdminLayout : AdminLayout;
@@ -80,6 +82,9 @@ const LaporanDitolak = () => {
     )
     .filter(l => !tanggal || new Date(l.tanggal).toLocaleDateString() === new Date(tanggal).toLocaleDateString());
 
+  const maxPage = Math.ceil(filtered.length / perPage);
+  const paged = filtered.slice((page - 1) * perPage, page * perPage);
+
   return (
     <Layout title="Laporan Ditolak">
       <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -127,7 +132,7 @@ const LaporanDitolak = () => {
 
         {/* Laporan List */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {filtered.map(l => (
+          {paged.map(l => (
             <div 
               key={l._id} 
               style={{
@@ -243,6 +248,89 @@ const LaporanDitolak = () => {
               )}
             </div>
           ))}
+        </div>
+
+        {/* Pagination */}
+        {maxPage > 1 && (
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '12px',
+            background: 'rgba(30, 41, 59, 0.5)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: '12px',
+            padding: '16px',
+            border: '1px solid rgba(255, 255, 255, 0.1)'
+          }}>
+            <button
+              onClick={() => setPage(Math.max(1, page - 1))}
+              disabled={page === 1}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 12px',
+                borderRadius: '8px',
+                border: 'none',
+                background: page === 1 ? 'rgba(255, 255, 255, 0.1)' : '#2563eb',
+                color: page === 1 ? 'rgba(255, 255, 255, 0.4)' : '#fff',
+                cursor: page === 1 ? 'not-allowed' : 'pointer',
+                fontSize: '14px'
+              }}
+            >
+              <FaChevronLeft size={12} /> Sebelumnya
+            </button>
+            
+            <div style={{ display: 'flex', gap: '4px' }}>
+              {Array.from({ length: maxPage }, (_, i) => i + 1).map(p => (
+                <button
+                  key={p}
+                  onClick={() => setPage(p)}
+                  style={{
+                    padding: '8px 12px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    background: p === page ? '#2563eb' : 'rgba(255, 255, 255, 0.1)',
+                    color: p === page ? '#fff' : 'rgba(255, 255, 255, 0.7)',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: p === page ? '600' : '400'
+                  }}
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setPage(Math.min(maxPage, page + 1))}
+              disabled={page === maxPage}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 12px',
+                borderRadius: '8px',
+                border: 'none',
+                background: page === maxPage ? 'rgba(255, 255, 255, 0.1)' : '#2563eb',
+                color: page === maxPage ? 'rgba(255, 255, 255, 0.4)' : '#fff',
+                cursor: page === maxPage ? 'not-allowed' : 'pointer',
+                fontSize: '14px'
+              }}
+            >
+              Selanjutnya <FaChevronRight size={12} />
+            </button>
+          </div>
+        )}
+
+        {/* Info */}
+        <div style={{
+          textAlign: 'center',
+          color: 'rgba(255, 255, 255, 0.6)',
+          fontSize: '14px'
+        }}>
+          Menampilkan {((page-1)*perPage)+1}-{Math.min(page*perPage, filtered.length)} dari {filtered.length} laporan ditolak
         </div>
       </div>
       <ToastContainer 

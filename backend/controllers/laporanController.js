@@ -10,8 +10,8 @@ const PDFDocument = require('pdfkit');
 
 exports.createLaporan = async (req, res) => {
   try {
-    console.log('BODY:', req.body);
-    console.log('FILES:', req.files);
+    console.log('🟡 Data diterima:', req.body);
+    console.log('🟡 File diterima:', req.files);  
     const { nama_merk, npwpd, alamat, hasil_pemeriksaan, latitude, longitude } = req.body;
     if (!nama_merk || !npwpd || !alamat || !hasil_pemeriksaan) {
       return res.status(400).json({ msg: 'Semua field wajib diisi', body: req.body, files: req.files });
@@ -40,21 +40,53 @@ exports.createLaporan = async (req, res) => {
   }
 };
 
+// Tambahan untuk backend/controllers/laporanController.js
+// Tambahkan fungsi ini di bagian exports
+
 exports.getUserLaporan = async (req, res) => {
   try {
-    const laporan = await Laporan.find({ user: req.user.id }).sort({ createdAt: -1 });
-    res.json(laporan);
+    console.log('GET /api/laporan/user called by user:', req.user.id);
+    
+    const laporan = await Laporan.find({ user: req.user.id })
+      .sort({ createdAt: -1 })
+      .lean();
+    
+    console.log('User laporan data:', laporan);
+    console.log('User laporan count:', laporan.length);
+    
+    // PASTIKAN SELALU RETURN ARRAY
+    res.json(Array.isArray(laporan) ? laporan : []);
   } catch (err) {
-    res.status(500).json({ msg: 'Server error' });
+    console.error('Error getting user laporan:', err);
+    res.status(500).json({ 
+      msg: 'Server error', 
+      error: err.message,
+      data: [] // SELALU RETURN EMPTY ARRAY SAAT ERROR
+    });
   }
 };
 
 exports.getAllLaporan = async (req, res) => {
   try {
-    const laporan = await Laporan.find().populate('user', 'nama username jabatan').sort({ createdAt: -1 });
-    res.json(laporan);
+    console.log('GET /api/laporan called by user:', req.user.id);
+    
+    const laporan = await Laporan.find()
+      .populate('user', 'nama username jabatan')
+      .sort({ createdAt: -1 })
+      .lean();
+    
+    console.log('All laporan data:', laporan);
+    console.log('All laporan count:', laporan.length);
+    
+    // PASTIKAN SELALU RETURN ARRAY
+    res.json(Array.isArray(laporan) ? laporan : []);
   } catch (err) {
-    res.status(500).json({ msg: 'Server error' });
+    console.error('Error getting all laporan:', err);
+    res.status(500).json({ 
+      msg: 'Server error', 
+      error: err.message,
+      data: [] // SELALU RETURN EMPTY ARRAY SAAT ERROR
+    });
   }
 };
 

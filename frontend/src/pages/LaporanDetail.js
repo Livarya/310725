@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axiosInstance from '../axiosInstance';
 import { useAuth } from '../context/AuthContext';
 import Lightbox from 'yet-another-react-lightbox';
 import 'yet-another-react-lightbox/styles.css';
@@ -18,7 +18,7 @@ const LaporanDetail = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get(`/api/laporan/${id}`, { headers: { Authorization: `Bearer ${token}` } })
+    axiosInstance.get(`/api/laporan/${id}`, { headers: { Authorization: `Bearer ${token}` } })
       .then(res => setLaporan(res.data))
       .catch(() => setLaporan(null));
   }, [id, token]);
@@ -49,11 +49,11 @@ const LaporanDetail = () => {
 
   const handleSubmitStatus = async () => {
     try {
-      await axios.put(`/api/laporan/${laporan._id}/status`, 
+      await axiosInstance.put(`/api/laporan/${laporan._id}/status`, 
         { status: statusAction, catatan }, 
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      const res = await axios.get(`/api/laporan/${laporan._id}`, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await axiosInstance.get(`/api/laporan/${laporan._id}`, { headers: { Authorization: `Bearer ${token}` } });
       setLaporan(res.data);
       setShowCatatanModal(false);
       setCatatan('');

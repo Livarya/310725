@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../config/api';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 
 // Titik pusat area geo-fencing (misal: Bandung)
-const GEO_CENTER = { lat: -6.911303, lng:  107.610311};
-const GEO_RADIUS_M = 5000; // 5 km
+const GEO_CENTER = { lat: -6.911303, lng: 107.610311};
+const GEO_RADIUS_M = 50000; // 5 km
 
 function haversine(lat1, lon1, lat2, lon2) {
   function toRad(x) { return x * Math.PI / 180; }
@@ -60,16 +60,19 @@ const BuatLaporan = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    
     if (formData.npwpd.length !== 13 || !/^\d{13}$/.test(formData.npwpd)) {
       setError('NPWPD harus 13 digit angka!');
       setLoading(false);
       return;
     }
+    
     if (!location.lat || !location.lng) {
       setError('Lokasi tidak tersedia. Pastikan GPS aktif dan izinkan akses lokasi.');
       setLoading(false);
       return;
     }
+    
     // Geo-fencing validation
     const distance = haversine(location.lat, location.lng, GEO_CENTER.lat, GEO_CENTER.lng);
     if (distance > GEO_RADIUS_M) {
@@ -90,15 +93,15 @@ const BuatLaporan = () => {
     data.append('longitude', location.lng);
 
     try {
-      await axios.post('/api/laporan', data, {
+      await api.post('/api/laporan', data, {
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'
         }
       });
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'Terjadi kesalahan');
+      console.error('Error creating laporan:', err);
+      setError(err.response?.data?.msg || err.response?.data?.message || 'Terjadi kesalahan saat mengirim laporan');
     } finally {
       setLoading(false);
     }
@@ -107,6 +110,10 @@ const BuatLaporan = () => {
   const handleChange = (e) => {
     if (e.target.name === 'foto') {
       const files = Array.from(e.target.files);
+      if (files.length > 4) {
+        setError('Maksimal 4 foto yang dapat diunggah');
+        return;
+      }
       setFormData({ ...formData, foto: files });
       // Generate preview URLs
       const urls = files.map(file => URL.createObjectURL(file));
@@ -143,25 +150,20 @@ const BuatLaporan = () => {
             {locError}
           </div>
         )}
-        {/* <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', color: '#fff', marginBottom: '8px', fontSize: '14px' }}>
-            Lokasi (Latitude, Longitude)
-          </label>
-          <input
-            type="text"
-            value={location.lat && location.lng ? `${location.lat}, ${location.lng}` : 'Mengambil lokasi...'}
-            readOnly
-            style={{
-              width: '100%',
-              padding: '10px 12px',
-              background: 'rgba(255, 255, 255, 0.05)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              borderRadius: '8px',
-              color: '#fff',
-              fontSize: '16px'
-            }}
-          />
-        </div> */}
+
+        {/* Status lokasi */}
+        <div style={{
+          background: location.lat && location.lng ? 'rgba(34, 197, 94, 0.1)' : 'rgba(251, 191, 36, 0.1)',
+          color: location.lat && location.lng ? '#22c55e' : '#fbbf24',
+          padding: '12px',
+          borderRadius: '8px',
+          marginBottom: '20px',
+          border: `1px solid ${location.lat && location.lng ? 'rgba(34, 197, 94, 0.2)' : 'rgba(251, 191, 36, 0.2)'}`
+        }}>
+          <strong>Status Lokasi:</strong> {location.lat && location.lng 
+            ? `Lokasi terdeteksi (${location.lat.toFixed(6)}, ${location.lng.toFixed(6)})` 
+            : 'Menunggu lokasi GPS...'}
+        </div>
 
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: '20px' }}>
@@ -171,7 +173,7 @@ const BuatLaporan = () => {
               marginBottom: '8px',
               fontSize: '14px'
             }}>
-              Nama Merk
+              Nama Merk *
             </label>
             <input
               type="text"
@@ -198,7 +200,7 @@ const BuatLaporan = () => {
               marginBottom: '8px',
               fontSize: '14px'
             }}>
-              Alamat
+              Alamat *
             </label>
             <textarea
               name="alamat"
@@ -226,7 +228,7 @@ const BuatLaporan = () => {
               marginBottom: '8px',
               fontSize: '14px'
             }}>
-              NPWPD
+              NPWPD * (13 digit angka)
             </label>
             <input
               type="text"
@@ -240,6 +242,7 @@ const BuatLaporan = () => {
               maxLength={13}
               pattern="\d{13}"
               title="NPWPD harus 13 digit angka"
+              placeholder="Contoh: 1234567890123"
               style={{
                 width: '100%',
                 padding: '10px 12px',
@@ -250,6 +253,9 @@ const BuatLaporan = () => {
                 fontSize: '16px'
               }}
             />
+            <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)', marginTop: '4px' }}>
+              {formData.npwpd.length}/13 digit
+            </div>
           </div>
 
           <div style={{ marginBottom: '20px' }}>
@@ -259,13 +265,14 @@ const BuatLaporan = () => {
               marginBottom: '8px',
               fontSize: '14px'
             }}>
-              Hasil Pemeriksaan
+              Hasil Pemeriksaan *
             </label>
             <textarea
               name="hasil_pemeriksaan"
               value={formData.hasil_pemeriksaan}
               onChange={handleChange}
               required
+              placeholder="Jelaskan hasil pemeriksaan secara detail..."
               style={{
                 width: '100%',
                 padding: '10px 12px',
@@ -287,7 +294,7 @@ const BuatLaporan = () => {
               marginBottom: '8px',
               fontSize: '14px'
             }}>
-              Foto Dokumentasi
+              Foto Dokumentasi * (Maksimal 4 foto)
             </label>
             <input
               type="file"
@@ -305,39 +312,78 @@ const BuatLaporan = () => {
                 color: '#fff'
               }}
             />
+            
             {/* Preview Foto */}
             {previewUrls.length > 0 && (
               <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginTop: 12 }}>
                 {previewUrls.map((url, idx) => (
                   <div key={idx} style={{ position: 'relative', cursor: 'pointer' }} onClick={() => { setShowPreview(true); setPreviewIdx(idx); }}>
-                    <img src={url} alt={`preview-${idx}`} style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8, border: '1px solid #ccc' }} />
+                    <img 
+                      src={url} 
+                      alt={`preview-${idx}`} 
+                      style={{ 
+                        width: 80, 
+                        height: 80, 
+                        objectFit: 'cover', 
+                        borderRadius: 8, 
+                        border: '1px solid #ccc' 
+                      }} 
+                    />
+                    <div style={{
+                      position: 'absolute',
+                      top: '-8px',
+                      right: '-8px',
+                      background: '#ef4444',
+                      color: '#fff',
+                      borderRadius: '50%',
+                      width: '20px',
+                      height: '20px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '12px',
+                      cursor: 'pointer'
+                    }} onClick={(e) => {
+                      e.stopPropagation();
+                      const newFiles = Array.from(formData.foto).filter((_, i) => i !== idx);
+                      const newUrls = previewUrls.filter((_, i) => i !== idx);
+                      setFormData({...formData, foto: newFiles});
+                      setPreviewUrls(newUrls);
+                    }}>×</div>
                   </div>
                 ))}
               </div>
             )}
+            <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)', marginTop: '4px' }}>
+              {formData.foto.length}/4 foto dipilih
+            </div>
           </div>
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !location.lat || !location.lng}
             style={{
               width: '100%',
               padding: '12px',
-              background: 'rgba(59, 130, 246, 0.9)',
+              background: loading || !location.lat || !location.lng ? 
+                'rgba(107, 114, 128, 0.5)' : 'rgba(59, 130, 246, 0.9)',
               color: '#fff',
               border: 'none',
               borderRadius: '8px',
               fontSize: '16px',
               fontWeight: '500',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              opacity: loading ? '0.7' : '1',
+              cursor: loading || !location.lat || !location.lng ? 'not-allowed' : 'pointer',
+              opacity: loading || !location.lat || !location.lng ? '0.7' : '1',
               transition: 'all 0.2s'
             }}
           >
-            {loading ? 'Mengirim...' : 'Kirim Laporan'}
+            {loading ? 'Mengirim...' : 
+             !location.lat || !location.lng ? 'Menunggu Lokasi GPS...' : 
+             'Kirim Laporan'}
           </button>
         </form>
       </div>
+      
       {/* Lightbox Preview */}
       {showPreview && previewUrls.length > 0 && (
         <div style={{
@@ -360,6 +406,22 @@ const BuatLaporan = () => {
               background: '#fff'
             }}
           />
+          <button
+            onClick={() => setShowPreview(false)}
+            style={{
+              position: 'absolute',
+              top: '20px',
+              right: '20px',
+              background: 'rgba(0,0,0,0.8)',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '50%',
+              width: '40px',
+              height: '40px',
+              fontSize: '24px',
+              cursor: 'pointer'
+            }}
+          >×</button>
         </div>
       )}
     </Layout>

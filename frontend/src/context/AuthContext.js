@@ -1,19 +1,31 @@
-import React, { createContext, useState, useContext } from 'react';
-import axios from 'axios';
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import axiosInstance from '../axiosInstance';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
+  const [user, setUser] = useState(() => {
+    const storedUser = localStorage.getItem('user');
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
+  const [token, setToken] = useState(() => localStorage.getItem('token'));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // ✅ Simpan token dan user ke localStorage saat berubah
+  useEffect(() => {
+    if (token) localStorage.setItem('token', token);
+    else localStorage.removeItem('token');
+
+    if (user) localStorage.setItem('user', JSON.stringify(user));
+    else localStorage.removeItem('user');
+  }, [token, user]);
 
   const login = async (nip, password) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await axios.post('/api/auth/login', { nip, password });
+      const res = await axiosInstance.post('/api/auth/login', { nip, password });
       setUser(res.data.user);
       setToken(res.data.token);
       setLoading(false);
@@ -34,4 +46,4 @@ export const AuthProvider = ({ children }) => {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-export const useAuth = () => useContext(AuthContext); 
+export const useAuth = () => useContext(AuthContext);
