@@ -1,6 +1,6 @@
 // QUICK FIX untuk AdminDashboard.js
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api, { API_BASE_URL } from '../config/api';
 import { useAuth } from '../context/AuthContext';
 import AdminLayout from '../components/AdminLayout';
 import SuperAdminLayout from '../components/SuperAdminLayout';
@@ -29,7 +29,7 @@ const AdminDashboard = () => {
   const fetchStats = async () => {
     try {
       console.log('Fetching stats...');
-      const res = await axios.get('/api/admin/stats', {
+      const res = await api.get('/api/admin/stats', {
         headers: { Authorization: `Bearer ${token}` }
       });
       console.log('Stats response:', res.data);
@@ -49,7 +49,7 @@ const AdminDashboard = () => {
   const fetchRecentLaporan = async () => {
     try {
       console.log('Fetching recent laporan...');
-      const res = await axios.get('/api/admin/recent-laporan', {
+      const res = await api.get('/api/admin/recent-laporan', {  
         headers: { Authorization: `Bearer ${token}` }
       });
       

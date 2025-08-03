@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
+import api, { API_BASE_URL } from '../config/api';
 import { useAuth } from '../context/AuthContext';
 import { FaPrint, FaArrowLeft } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
@@ -16,12 +16,12 @@ const AdminCetakLaporan = () => {
     document.title = 'BERITA ACARA - Bapenda Kota Bandung';
     
     // Ambil data laporan
-    axios.get(`/api/laporan/${id}`, { headers: { Authorization: `Bearer ${token}` } })
+    api.get(`/api/laporan/${id}`, { headers: { Authorization: `Bearer ${token}` } })
       .then(res => setLaporan(res.data))
       .catch(() => setLaporan(null));
     
     // Ambil data user profile untuk petugas
-    axios.get('/api/users/me', { headers: { Authorization: `Bearer ${token}` } })
+    api.get('/api/users/me', { headers: { Authorization: `Bearer ${token}` } })
       .then(res => setPetugas(res.data))
       .catch(err => console.error('Error fetching user profile:', err));
     
@@ -335,7 +335,7 @@ const AdminCetakLaporan = () => {
           <div style={{ position: 'relative', textAlign: 'center', marginBottom: '30px' }}>
             {/* Logo Bandung - Kiri */}
             <img 
-              src="/bandung.png" 
+              src="/assets/bandung.png" 
               alt="Logo Bandung" 
               style={{
                 position: 'absolute',
@@ -349,7 +349,7 @@ const AdminCetakLaporan = () => {
             
             {/* Logo Bapenda - Kanan */}
             <img 
-              src="/logo.png" 
+              src="/assets/logo.png" 
               alt="Logo Bapenda" 
               style={{
                 position: 'absolute',
@@ -428,19 +428,20 @@ const AdminCetakLaporan = () => {
                             textAlign: 'center'
                           }}
                         >
-                          <img
-                            src={`http://localhost:5000/uploads/${foto}`}
-                            alt={`Foto ${globalIdx + 1}`}
-                            style={{
-                              width: 'auto',
-                              height: '10cm',
-                              maxWidth: '100%',
-                              objectFit: 'contain',
-                              marginBottom: '10px',
-                              border: '1px solid #ccc',
-                              borderRadius: '8px'
-                            }}
-                          />
+                       <img
+  src={`http://localhost:5000/uploads/${foto}`}
+  alt={`Foto ${globalIdx + 1}`}
+  style={{
+    width: 'auto',
+    height: '10cm',
+    maxWidth: '100%',
+    objectFit: 'contain',
+    marginBottom: '10px',
+    border: '1px solid #ccc',
+    borderRadius: '8px'
+  }}
+/>
+
                           <p style={{ fontSize: '12px', margin: 0, fontWeight: 'bold' }}>
                             Foto {globalIdx + 1}
                           </p>

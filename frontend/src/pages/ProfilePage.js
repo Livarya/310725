@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axiosInstance from '../axiosInstance';
+import api, { API_BASE_URL } from '../config/api';
 import { useAuth } from '../context/AuthContext';
 import Layout from '../components/Layout';
 
@@ -29,7 +29,7 @@ const ProfilePage = () => {
     setSuccess('');
 
     try {
-      const res = await axiosInstance.put('/api/users/me', formData, {
+      const res = await api.put('/api/users/me', formData, {  
         headers: { Authorization: `Bearer ${token}` }
       });
       setUser(res.data);

@@ -1,6 +1,6 @@
 // frontend/src/pages/RegisterPage.jsx
 import React, { useState } from 'react';
-import axiosInstance from '../axiosInstance';
+import api, { API_BASE_URL } from '../config/api';
 import { useNavigate } from 'react-router-dom';
 
 const RegisterPage = () => {
@@ -29,7 +29,7 @@ const RegisterPage = () => {
     setLoading(true);
     setError(null);
     try {
-      await axiosInstance.post('/api/auth/register', form);
+      await api.post('/api/auth/register', form);
       navigate('/');
     } catch (err) {
       setError(err.response?.data?.msg || 'Registrasi gagal');

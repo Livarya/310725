@@ -1,26 +1,37 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import api from '../config/api';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Select from 'react-select';
-import axiosInstance from '../axiosInstance';
+import { FaPaperPlane } from 'react-icons/fa';
+import './BlastWhatsapp.css';
 import SuperAdminLayout from '../components/SuperAdminLayout';
 
 const customStyles = {
-  option: (provided, state) => ({
-    ...provided,
-    backgroundColor: state.isFocused ? '#f0f0f0' : 'white',
-    color: '#000',
-  }),
   control: (provided) => ({
     ...provided,
-    backgroundColor: 'white',
-    borderColor: '#ccc',
-    boxShadow: 'none',
-    '&:hover': {
-      borderColor: '#888',
-    },
+    backgroundColor: '#1a1f33',
+    borderColor: '#00ffaa',
+    color: '#fff',
+  }),
+  menu: (provided) => ({
+    ...provided,
+    backgroundColor: '#1a1f33',
+    color: '#fff',
+  }),
+  option: (provided, state) => ({
+    ...provided,
+    backgroundColor: state.isFocused ? '#00ffaa' : '#1a1f33',
+    color: state.isFocused ? '#000' : '#fff',
+  }),
+  singleValue: (provided) => ({
+    ...provided,
+    color: '#fff',
   }),
   multiValue: (provided) => ({
     ...provided,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: '#00ffaa',
+    color: '#000',
   }),
   multiValueLabel: (provided) => ({
     ...provided,
@@ -29,129 +40,113 @@ const customStyles = {
 };
 
 const BlastWhatsapp = () => {
-  const [userOptions, setUserOptions] = useState([]);
-  const [selectedUsers, setSelectedUsers] = useState([]);
   const [message, setMessage] = useState('');
-  const [status, setStatus] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [selectedUsers, setSelectedUsers] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Ambil data dari backend
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await axiosInstance.get('http://localhost:5000/api/wa-users');
-        const formatted = res.data.map(user => ({
-          value: user.phone,
-          label: `${user.name} (${user.phone})`
+        const res = await api.get('/api/users');
+        const options = res.data.map(user => ({
+          value: user.whatsappNumber,
+          label: `${user.nama} (${user.whatsappNumber})`
         }));
-        setUserOptions(formatted);
+        setUsers(options);
       } catch (err) {
-        console.error('Gagal ambil nomor:', err);
+        toast.error('Gagal mengambil data pengguna');
       }
     };
     fetchUsers();
   }, []);
 
+  const handleSelectAll = () => {
+    if (selectedUsers.length === users.length) {
+      setSelectedUsers([]);
+    } else {
+      setSelectedUsers(users);
+    }
+  };
+
   const handleBlast = async (e) => {
     e.preventDefault();
-    if (!message || selectedUsers.length === 0) {
-      setStatus({ success: false, message: 'Isi pesan dan pilih minimal 1 nomor' });
+    if (!message.trim()) {
+      toast.warn('Pesan tidak boleh kosong');
+      return;
+    }
+    if (selectedUsers.length === 0) {
+      toast.warn('Pilih minimal satu pengguna');
       return;
     }
 
     setLoading(true);
-    setStatus(null);
-
     try {
-      const res = await axiosInstance.post('http://localhost:5000/api/blast', {
-        message,
+      const payload = {
+        message: message.trim(),
         numbers: selectedUsers.map(user => user.value),
-      });
-      setStatus({ success: true, message: res.data.msg });
+      };
+      const res = await api.post('/api/whatsapp/blast', payload);
+      toast.success(res.data.message || 'Pesan berhasil dikirim');
+      setMessage('');
+      setSelectedUsers([]);
     } catch (err) {
-      setStatus({
-        success: false,
-        message: err.response?.data?.msg || 'Gagal mengirim pesan',
-      });
+      const msg = err.response?.data?.message || 'Terjadi kesalahan saat mengirim pesan';
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSelectAll = () => {
-    setSelectedUsers(userOptions);
-  };
-
   return (
     <SuperAdminLayout title="Blast WhatsApp">
-      <div style={{ padding: '24px', maxWidth: '700px' }}>
-        <h2 style={{ fontSize: '20px', marginBottom: '16px' }}>Kirim Blast WhatsApp</h2>
-
-        <form onSubmit={handleBlast} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <div>
-            <label><strong>Pilih Nomor</strong></label>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <div className="blast-container">
+        <h1 className="blast-title">Kirim Pesan WhatsApp Massal</h1>
+        <form onSubmit={handleBlast} className="blast-form">
+          <div className="form-group">
+            <label className="form-label">Pilih Pengguna</label>
+            <div className="select-wrapper">
               <Select
+                options={users}
                 isMulti
-                options={userOptions}
                 value={selectedUsers}
                 onChange={setSelectedUsers}
-                placeholder="Pilih nomor tujuan..."
-                styles={customStyles}
-                className="react-select-container"
+                placeholder="Cari dan pilih pengguna..."
                 classNamePrefix="react-select"
+                styles={customStyles}
               />
               <button
                 type="button"
                 onClick={handleSelectAll}
-                style={{
-                  padding: '6px 12px',
-                  background: '#0d6efd',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer'
-                }}
+                className="btn-select-all"
               >
-                Pilih Semua
+                {selectedUsers.length === users.length ? 'Batal Pilih Semua' : 'Pilih Semua'}
               </button>
             </div>
           </div>
 
-          <div>
-            <label><strong>Pesan</strong></label>
+          <div className="form-group">
+            <label className="form-label">Pesan WhatsApp</label>
             <textarea
+              className="textarea"
               rows="5"
-              placeholder="Tulis pesan yang ingin dikirim..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              required
-              style={{ width: '100%', padding: '12px' }}
+              placeholder="Tulis pesan yang ingin dikirim..."
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            style={{
-              padding: '12px',
-              background: '#ffffff',
-              color: 'black',
-              fontWeight: '600',
-              border: 'none',
-              cursor: 'pointer',
-              borderRadius: '6px'
-            }}
+            className={`btn-submit ${loading ? 'btn-disabled' : ''}`}
           >
+            <FaPaperPlane style={{ marginRight: '8px' }} />
             {loading ? 'Mengirim...' : 'Kirim Pesan'}
           </button>
-
-          {status && (
-            <div style={{ color: status.success ? 'green' : 'red' }}>
-              {status.message}
-            </div>
-          )}
         </form>
+
+        <ToastContainer position="top-center" autoClose={3000} />
       </div>
     </SuperAdminLayout>
   );

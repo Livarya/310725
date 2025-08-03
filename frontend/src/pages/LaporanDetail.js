@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api, { API_BASE_URL } from '../config/api';
 import { useAuth } from '../context/AuthContext';
 import Lightbox from 'react-image-lightbox';
 import 'react-image-lightbox/style.css';
@@ -18,7 +18,7 @@ const LaporanDetail = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get(`/api/laporan/${id}`, { headers: { Authorization: `Bearer ${token}` } })
+    api.get(`/api/laporan/${id}`, { headers: { Authorization: `Bearer ${token}` } })
       .then(res => setLaporan(res.data))
       .catch(() => setLaporan(null));
   }, [id, token]);
@@ -48,11 +48,11 @@ const LaporanDetail = () => {
 
   const handleSubmitStatus = async () => {
     try {
-      await axios.put(`/api/laporan/${laporan._id}/status`, 
+      await api.put(`/api/laporan/${laporan._id}/status`, 
         { status: statusAction, catatan }, 
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      const res = await axios.get(`/api/laporan/${laporan._id}`, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await api.get(`/api/laporan/${laporan._id}`, { headers: { Authorization: `Bearer ${token}` } });
       setLaporan(res.data);
       setShowCatatanModal(false);
       setCatatan('');
@@ -372,7 +372,7 @@ const LaporanDetail = () => {
                   }}
                 >
                   <img
-                    src={`http://localhost:5000/uploads/${f}`}
+                    src={`${API_BASE_URL}/uploads/${f}`}
                     alt={`Foto ${idx + 1}`}
                     style={{
                       width: '100%',
@@ -410,4 +410,4 @@ const LaporanDetail = () => {
   );
 };
 
-export default LaporanDetail;
+export default LaporanDetail; 

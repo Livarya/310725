@@ -1,37 +1,97 @@
-// frontend/src/config/api.js
 import axios from 'axios';
 
-// Buat base URL yang fleksibel
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://8283a4107674.ngrok-free.app';
+// Base URL untuk ngrok backend
+const BASE_URL = process.env.REACT_APP_API_URL || 'https://8a6501bbcdb3.ngrok-free.app';
 
-// Buat axios instance dengan base configuration
+console.log('API Base URL:', BASE_URL);
+
+// Export untuk komponen lain yang membutuhkan
+export const API_BASE_URL = BASE_URL;
+
+// Buat instance axios dengan konfigurasi untuk ngrok
 const api = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: 10000, // 10 detik timeout
+  baseURL: BASE_URL,
+  timeout: 30000, // 30 seconds timeout
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    // Header untuk ngrok (penting!)
+    'ngrok-skip-browser-warning': 'true',
+  },
 });
 
-// Interceptor untuk menambahkan token otomatis
+// Request interceptor
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    // Pastikan header ngrok ada
+    config.headers['ngrok-skip-browser-warning'] = 'true';
+    
+    console.log('API Request:', {
+      method: config.method?.toUpperCase(),
+      url: `${config.baseURL}${config.url}`,
+      headers: {
+        'Authorization': config.headers.Authorization ? 'Bearer [TOKEN]' : 'None',
+        'ngrok-skip-browser-warning': config.headers['ngrok-skip-browser-warning'],
+      },
+    });
+    
     return config;
   },
   (error) => {
+    console.error('Request interceptor error:', error);
     return Promise.reject(error);
   }
 );
 
-// Interceptor untuk handle response errors
+// Response interceptor
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log('API Response Success:', {
+      status: response.status,
+      url: response.config.url,
+      dataLength: JSON.stringify(response.data).length,
+    });
+    return response;
+  },
   (error) => {
-    console.error('API Error:', error.response?.data || error.message);
+    console.error('API Error Details:', {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      url: error.config?.url,
+      fullUrl: error.config ? `${error.config.baseURL}${error.config.url}` : 'Unknown',
+      errorData: error.response?.data,
+      message: error.message,
+      isNetworkError: !error.response,
+    });
+
+    // Handle specific error cases
+    if (error.response?.status === 401) {
+      console.warn('Unauthorized - clearing token');
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
+    }
+
+    // Handle ngrok specific errors
+    if (!error.response && error.message.includes('Network Error')) {
+      console.error('Network Error - Check if ngrok backend is running');
+    }
+
     return Promise.reject(error);
   }
 );
 
-export { API_BASE_URL };
+// Export default sebagai api instance
 export default api;
+
+// Export BASE_URL dengan nama lain untuk backward compatibility
+export { BASE_URL };
+export const baseURL = BASE_URL;

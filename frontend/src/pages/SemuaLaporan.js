@@ -1,6 +1,6 @@
 // QUICK FIX untuk SemuaLaporan.js
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api, { API_BASE_URL } from '../config/api';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
@@ -51,7 +51,7 @@ const SemuaLaporan = () => {
     setError('');
     try {
       console.log('Fetching all laporan...');
-      const res = await axios.get('/api/laporan', { 
+      const res = await api.get('/api/laporan', { 
         headers: { Authorization: `Bearer ${token}` } 
       });
       
@@ -79,7 +79,7 @@ const SemuaLaporan = () => {
 
   const handleStatus = async (id, newStatus) => {
     try {
-      await axios.put(`/api/laporan/${id}/status`, { status: newStatus }, {
+      await api.put(`/api/laporan/${id}/status`, { status: newStatus }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.success(`Laporan ${newStatus}`);
@@ -92,7 +92,7 @@ const SemuaLaporan = () => {
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`/api/laporan/${modal.id}`, {
+      await api.delete(`/api/laporan/${modal.id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.success('Laporan dihapus');

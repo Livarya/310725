@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import axiosInstance from '../axiosInstance';
+import api, { API_BASE_URL } from '../config/api';
 
 export default function ResetPassword() {
   const { token } = useParams();  
@@ -11,7 +11,7 @@ export default function ResetPassword() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axiosInstance.post(`/api/auth/reset-password/${token}`, { password });
+      const res = await api.post(`/api/auth/reset-password/${token}`, { password });
       setMsg(res.data.msg);
       setSuccess(true);
     } catch (err) {

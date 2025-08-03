@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import api from '../config/api';
+import api, { API_BASE_URL }  from '../config/api';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';

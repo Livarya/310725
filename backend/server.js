@@ -2,69 +2,52 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
-const jwt = require('jsonwebtoken');
 const path = require('path');
-
+const superadminRoutes = require('./routes/superadmin');
+const { initWhatsApp } = require('./config/whatsapp');
 const app = express();
+const waRoute = require('./routes/wa');
 
-// Connect Database
 connectDB();
 
-// Middleware
-app.use(cors());
+// CORS configuration untuk ngrok frontend dan backend
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'ngrok-skip-browser-warning']
+}));
+
+
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Inisialisasi WhatsApp client
 console.log('Menginisialisasi WhatsApp client untuk notifikasi...');
-try {
-  const { initWhatsApp } = require('./config/whatsapp');
-  initWhatsApp();
-} catch (err) {
-  console.log('WhatsApp init error (non-critical):', err.message);
-}
+initWhatsApp();
 
-// Routes - Load one by one with error handling
-try {
-  console.log('Loading auth routes...');
-  app.use('/api/auth', require('./routes/auth'));
-} catch (err) {
-  console.error('ERROR in auth routes:', err.message);
-}
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/users', require('./routes/users'));
+app.use('/api/laporan', require('./routes/laporan'));
+app.use('/api/superadmin', superadminRoutes);
+app.use('/api/admin', require('./routes/admin'));
+app.use('/api/whatsapp', waRoute);
 
-try {
-  console.log('Loading users routes...');
-  app.use('/api/users', require('./routes/users'));
-} catch (err) {
-  console.error('ERROR in users routes:', err.message);
-}
+app.get('/', (req, res) => {
+  res.send('API berjalan dengan baik 🚀');
+});
+app.get('/api/test', (req, res) => {
+  res.json({ 
+    success: true, 
+    message: 'Backend connected!',
+    timestamp: new Date()
+  });
+});
 
-try {
-  console.log('Loading laporan routes...');
-  app.use('/api/laporan', require('./routes/laporan'));
-} catch (err) {
-  console.error('ERROR in laporan routes:', err.message);
-}
 
-try {
-  console.log('Loading admin routes...');
-  app.use('/api/admin', require('./routes/admin'));
-} catch (err) {
-  console.error('ERROR in admin routes:', err.message);
-}
 
-try {
-  console.log('Loading superadmin routes...');
-  const superadminRoutes = require('./routes/superadmin');
-  app.use('/api/superadmin', superadminRoutes);
-} catch (err) {
-  console.error('ERROR in superadmin routes:', err.message);
-}
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, '0.0.0.0', () => console.log(`Server started on port ${PORT}`));
 
-const PORT = 5000;
-app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
-
-// Tambahkan error handler global
+// Global error handler
 app.use((err, req, res, next) => {
   console.error('GLOBAL ERROR HANDLER:', err.stack || err);
   res.status(500).json({ msg: 'Server error', error: err.message });

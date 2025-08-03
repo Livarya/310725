@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api, { API_BASE_URL } from '../config/api';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
@@ -28,7 +28,7 @@ const LaporanDitolak = () => {
   const fetchLaporan = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('/api/laporan', { 
+      const res = await api.get('/api/laporan', { 
         headers: { Authorization: `Bearer ${token}` } 
       });
       setLaporan(res.data.filter(l => l.status === 'Ditolak'));
@@ -41,7 +41,7 @@ const LaporanDitolak = () => {
   const handleSetujui = async (id, e) => {
     e.stopPropagation();
     try {
-      await axios.put(`/api/laporan/${id}/status`, { status: 'Disetujui' }, { headers: { Authorization: `Bearer ${token}` } });
+      await api.put(`/api/laporan/${id}/status`, { status: 'Disetujui' }, { headers: { Authorization: `Bearer ${token}` } });
       toast.success('Laporan disetujui');
       fetchLaporan();
     } catch {
@@ -52,7 +52,7 @@ const LaporanDitolak = () => {
   const handleTolak = async (id, e) => {
     e.stopPropagation();
     try {
-      await axios.put(`/api/laporan/${id}/status`, { status: 'Ditolak' }, { headers: { Authorization: `Bearer ${token}` } });
+      await api.put(`/api/laporan/${id}/status`, { status: 'Ditolak' }, { headers: { Authorization: `Bearer ${token}` } });
       toast.success('Laporan ditolak');
       fetchLaporan();
     } catch {
@@ -373,7 +373,7 @@ const LaporanDitolak = () => {
               <button
                 onClick={async () => {
                   try {
-                    await axios.delete(`/api/laporan/${modal.id}`, { headers: { Authorization: `Bearer ${token}` } });
+                    await api.delete(`/api/laporan/${modal.id}`, { headers: { Authorization: `Bearer ${token}` } });
                     toast.success('Laporan dihapus');
                     setModal({ open: false, id: null });
                     fetchLaporan();

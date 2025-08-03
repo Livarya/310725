@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api, { API_BASE_URL } from '../config/api';
 import { useAuth } from '../context/AuthContext';
 import { FaEdit, FaTrash, FaPlus, FaSearch, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import AdminLayout from '../components/AdminLayout';
@@ -43,7 +43,7 @@ const DataPengguna = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('/api/superadmin/users', { headers: { Authorization: `Bearer ${token}` } });
+      const res = await api.get('/api/superadmin/users', { headers: { Authorization: `Bearer ${token}` } });
       setUsers(res.data);
     } catch {
       setUsers([]);
@@ -85,9 +85,9 @@ const DataPengguna = () => {
     setSaving(true);
     try {
       if (modalType === 'edit') {
-        await axios.put(`/api/superadmin/users/${editUser._id}`, form, { headers: { Authorization: `Bearer ${token}` } });
+        await api.put(`/api/superadmin/users/${editUser._id}`, form, { headers: { Authorization: `Bearer ${token}` } });
       } else {
-        await axios.post('/api/auth/register', form, { headers: { Authorization: `Bearer ${token}` } });
+        await api.post('/api/auth/register', form, { headers: { Authorization: `Bearer ${token}` } });
       }
       closeModal();
       fetchUsers();
@@ -103,7 +103,7 @@ const DataPengguna = () => {
 
   const confirmDelete = async () => {
     try {
-      await axios.delete(`/api/superadmin/users/${deleteId}`, { headers: { Authorization: `Bearer ${token}` } });
+      await api.delete(`/api/superadmin/users/${deleteId}`, { headers: { Authorization: `Bearer ${token}` } });
       setDeleteId(null);
       fetchUsers();
     } catch {}

@@ -1,0 +1,105 @@
+/* BlastWhatsapp.css */
+
+.blast-container {
+    background-color: #0c1121;
+    color: #fff;
+    padding: 2rem;
+    max-width: 800px;
+    margin: 2rem auto;
+    border-radius: 10px;
+    box-shadow: 0 0 12px rgba(0, 255, 170, 0.1);
+  }
+  
+  .blast-title {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    color: #00ffaa;
+    text-align: center;
+  }
+  
+  .blast-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .form-label {
+    font-size: 16px;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #e0e0e0;
+  }
+  
+  .select-wrapper {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
+  
+  .react-select__control {
+    background-color: #1a1f33;
+    border-color: #00ffaa;
+    color: #fff;
+  }
+  
+  .react-select__menu {
+    background-color: #1a1f33;
+    color: #fff;
+  }
+  
+  .btn-select-all {
+    background-color: #00ffaa;
+    color: #000;
+    border: none;
+    padding: 0.5rem 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .btn-select-all:hover {
+    background-color: #00cc88;
+  }
+  
+  .textarea {
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid #00ffaa;
+    background-color: #1a1f33;
+    color: #fff;
+    resize: none;
+    font-size: 16px;
+  }
+  
+  .btn-submit {
+    background-color: #00ffaa;
+    color: #000;
+    border: none;
+    padding: 0.75rem 1.25rem;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .btn-submit:hover {
+    background-color: #00cc88;
+  }
+  
+  .btn-disabled {
+    background-color: #999;
+    cursor: not-allowed;
+  }
+  

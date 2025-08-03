@@ -1,42 +1,31 @@
-// routes/wa.js
+// backend/routes/wa.js
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User');
-const { blastMessage } = require('../config/whatsapp');
+const { client } = require('../config/whatsapp'); // sudah ada file whatsapp.js
 
 router.post('/blast', async (req, res) => {
-  const { message } = req.body;
+  const { numbers, message } = req.body;
 
-  if (!message) return res.status(400).json({ msg: 'Pesan wajib diisi' });
-
-  try {
-    const users = await User.find({ whatsappNumber: { $ne: null } });
-    const formattedUsers = users.map(u => ({ name: u.nama, phone: u.whatsappNumber }));
-
-    console.log('🚀 Mengirim blast ke:', formattedUsers); // ✅ Tambahkan ini
-    console.log('📨 Isi pesan:', message);
-
-    await blastMessage(formattedUsers, message); // ← fungsi utama
-
-    res.json({ msg: 'Blast WhatsApp selesai dikirim' });
-  } catch (err) {
-    console.error('❌ ERROR saat kirim blast:', err);
-    res.status(500).json({ msg: 'Gagal melakukan blast', error: err.message });
+  if (!Array.isArray(numbers) || !message) {
+    return res.status(400).json({ message: 'Format payload salah' });
   }
-});
-// GET /api/wa-users
-router.get('/wa-users', async (req, res) => {
-  try {
-    const users = await User.find({ status: 'aktif' }).select('nama whatsappNumber');
-    const formatted = users.map(user => ({
-      name: user.nama,
-      phone: user.whatsappNumber
-    }));
-    res.json(formatted);
-  } catch (err) {
-    console.error('Error get wa-users:', err);
-    res.status(500).json({ msg: 'Gagal ambil data pengguna' });
+
+  const results = [];
+
+  for (let number of numbers) {
+    const formatted = number.includes('@c.us') ? number : `${number}@c.us`;
+    try {
+      await client.sendMessage(formatted, message);
+      results.push({ number, status: 'success' });
+    } catch (err) {
+      results.push({ number, status: 'failed', error: err.message });
+    }
   }
+
+  return res.status(200).json({
+    message: 'Blast selesai',
+    results
+  });
 });
 
 module.exports = router;

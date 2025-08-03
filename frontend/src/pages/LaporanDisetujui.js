@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api, { API_BASE_URL } from '../config/api';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
@@ -31,7 +31,7 @@ const LaporanDisetujui = () => {
     
     setLoading(true);
     try {
-      const res = await axios.get('/api/laporan', { 
+      const res = await api.get('/api/laporan', { 
         headers: { Authorization: `Bearer ${token}` } 
       });
       
@@ -60,7 +60,7 @@ const LaporanDisetujui = () => {
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`/api/laporan/${modal.id}`, { 
+      await api.delete(`/api/laporan/${modal.id}`, { 
         headers: { Authorization: `Bearer ${token}` } 
       });
       toast.success('Laporan dihapus');
@@ -75,7 +75,7 @@ const LaporanDisetujui = () => {
   const handleSetujui = async (id, e) => {
     e.stopPropagation();
     try {
-      await axios.put(`/api/laporan/${id}/status`, { status: 'Disetujui' }, { 
+      await api.put(`/api/laporan/${id}/status`, { status: 'Disetujui' }, { 
         headers: { Authorization: `Bearer ${token}` } 
       });
       toast.success('Laporan disetujui');
@@ -89,7 +89,7 @@ const LaporanDisetujui = () => {
   const handleTolak = async (id, e) => {
     e.stopPropagation();
     try {
-      await axios.put(`/api/laporan/${id}/status`, { status: 'Ditolak' }, { 
+      await api.put(`/api/laporan/${id}/status`, { status: 'Ditolak' }, { 
         headers: { Authorization: `Bearer ${token}` } 
       });
       toast.success('Laporan ditolak');
