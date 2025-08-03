@@ -84,8 +84,16 @@ const BlastWhatsapp = () => {
     try {
       const payload = {
         message: message.trim(),
-        numbers: selectedUsers.map(user => user.value),
+        numbers: selectedUsers.map(user => {
+          let number = user.value.trim();
+          // Ubah awalan 08 menjadi 62
+          if (number.startsWith('08')) {
+            number = '62' + number.slice(1);
+          }
+          return number;
+        }),
       };
+
       const res = await api.post('/api/whatsapp/blast', payload);
       toast.success(res.data.message || 'Pesan berhasil dikirim');
       setMessage('');

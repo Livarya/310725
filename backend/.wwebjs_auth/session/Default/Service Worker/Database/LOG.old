@@ -1,3 +1,2 @@
-2025/08/03-19:52:48.663 c6c Reusing MANIFEST D:\bapbapbap\BAP-laporan\backend\.wwebjs_auth\session\Default\Service Worker\Database/MANIFEST-000001
-2025/08/03-19:52:48.664 c6c Recovering log #3
-2025/08/03-19:52:48.664 c6c Reusing old log D:\bapbapbap\BAP-laporan\backend\.wwebjs_auth\session\Default\Service Worker\Database/000003.log 
+2025/08/03-21:31:03.036 b20 Creating DB D:\bapbapbap\BAP-laporan\backend\.wwebjs_auth\session\Default\Service Worker\Database since it was missing.
+2025/08/03-21:31:03.266 b20 Reusing MANIFEST D:\bapbapbap\BAP-laporan\backend\.wwebjs_auth\session\Default\Service Worker\Database/MANIFEST-000001

@@ -1,3 +1,2 @@
-2025/08/03-19:52:48.666 49e4 Reusing MANIFEST D:\bapbapbap\BAP-laporan\backend\.wwebjs_auth\session\Default\Local Storage\leveldb/MANIFEST-000001
-2025/08/03-19:52:48.666 49e4 Recovering log #68
-2025/08/03-19:52:48.666 49e4 Reusing old log D:\bapbapbap\BAP-laporan\backend\.wwebjs_auth\session\Default\Local Storage\leveldb/000068.log 
+2025/08/03-21:30:59.518 2dd0 Creating DB D:\bapbapbap\BAP-laporan\backend\.wwebjs_auth\session\Default\Local Storage\leveldb since it was missing.
+2025/08/03-21:30:59.653 2dd0 Reusing MANIFEST D:\bapbapbap\BAP-laporan\backend\.wwebjs_auth\session\Default\Local Storage\leveldb/MANIFEST-000001

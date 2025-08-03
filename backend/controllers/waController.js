@@ -1,5 +1,11 @@
-const { client } = require('../config/whatsapp'); // pastikan ini sesuai
-// client ini harus berasal dari whatsapp-web.js yang sudah login QR Code
+const { client } = require('../config/whatsapp');
+
+// Fungsi bantu untuk ubah nomor 08 ➜ 62
+const formatNumber = (no) => {
+  if (no.startsWith('0')) return '62' + no.slice(1);
+  if (no.startsWith('+')) return no.replace('+', '');
+  return no;
+};
 
 exports.sendBlastMessage = async (req, res) => {
   const { message, numbers } = req.body;
@@ -11,7 +17,8 @@ exports.sendBlastMessage = async (req, res) => {
   const failed = [];
 
   for (const no of numbers) {
-    const number = no.includes('@c.us') ? no : `${no}@c.us`;
+    const raw = formatNumber(no); // pastikan format nomor benar
+    const number = raw.includes('@c.us') ? raw : `${raw}@c.us`;
 
     try {
       await client.sendMessage(number, message);
