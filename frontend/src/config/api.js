@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Base URL untuk ngrok backend
-const BASE_URL = process.env.REACT_APP_API_URL || 'https://8a6501bbcdb3.ngrok-free.app';
+const BASE_URL = process.env.REACT_APP_API_URL || 'https://763c2ccfb48d.ngrok-free.app ';
 
 console.log('API Base URL:', BASE_URL);
 

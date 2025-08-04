@@ -2,11 +2,13 @@ const Laporan = require('../models/Laporan');
 const mongoose = require('mongoose');
 const Log = require('../models/Log');
 const User = require('../models/User');
-const { sendStatusNotification, sendPdfReport } = require('../config/whatsapp');
+const { sendPdfReport } = require('../config/whatsapp');
 const path = require('path');
 const fs = require('fs');
 const { createCanvas, loadImage } = require('canvas');
 const PDFDocument = require('pdfkit');
+const sendStatusNotification = require('../utils/waNotif');
+
 
 exports.createLaporan = async (req, res) => {
   try {
@@ -105,22 +107,26 @@ exports.updateStatusLaporan = async (req, res) => {
     const { status } = req.body;
     const { id } = req.params;
 
-    const laporan = await Laporan.findByIdAndUpdate(
-      id,
-      { status },
-      { new: true }
-    ).populate('user');
+    if (!status) {
+      return res.status(400).json({ msg: 'Status tidak boleh kosong' });
+    }
+
+    // Update status dulu
+    await Laporan.findByIdAndUpdate(id, { status });
+
+    // Ambil ulang laporan dan populate user
+    const laporan = await Laporan.findById(id).populate('user');
 
     if (!laporan) {
       return res.status(404).json({ msg: 'Laporan tidak ditemukan' });
     }
 
-    // Tambahkan validasi untuk user
     if (!laporan.user || !laporan.user._id) {
       console.warn('User tidak tersedia dalam laporan:', laporan);
-      return res.status(400).json({ msg: 'Data user pada laporan tidak tersedia atau rusak' });
+      return res.status(400).json({ msg: 'Data user tidak lengkap' });
     }
 
+    // Ambil data user langsung untuk pastikan nomor WhatsApp tersedia
     const user = await User.findById(laporan.user._id);
 
     if (user && user.whatsappNumber) {
@@ -128,6 +134,7 @@ exports.updateStatusLaporan = async (req, res) => {
     }
 
     res.json({ msg: 'Status laporan diperbarui', laporan });
+
   } catch (err) {
     console.error('Error saat memproses notifikasi:', err);
     res.status(500).json({ msg: 'Server error', error: err.message });

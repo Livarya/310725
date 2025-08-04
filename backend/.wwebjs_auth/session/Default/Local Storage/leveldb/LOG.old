@@ -1,2 +1,6 @@
-2025/08/03-21:30:59.518 2dd0 Creating DB D:\bapbapbap\BAP-laporan\backend\.wwebjs_auth\session\Default\Local Storage\leveldb since it was missing.
-2025/08/03-21:30:59.653 2dd0 Reusing MANIFEST D:\bapbapbap\BAP-laporan\backend\.wwebjs_auth\session\Default\Local Storage\leveldb/MANIFEST-000001
+2025/08/04-09:58:44.043 4808 Reusing MANIFEST D:\bapbapbap\BAP-laporan\backend\.wwebjs_auth\session\Default\Local Storage\leveldb/MANIFEST-000001
+2025/08/04-09:58:44.043 4808 Recovering log #3
+2025/08/04-09:58:44.044 4808 Reusing old log D:\bapbapbap\BAP-laporan\backend\.wwebjs_auth\session\Default\Local Storage\leveldb/000003.log 
+2025/08/04-09:59:44.463 4a50 Level-0 table #5: started
+2025/08/04-09:59:44.522 4a50 Level-0 table #5: 19317 bytes OK
+2025/08/04-09:59:44.547 4a50 Delete type=0 #3

@@ -1,2 +1,37 @@
-2025/08/03-21:35:33.095 290c Reusing MANIFEST D:\bapbapbap\bap-laporan\backend\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
-2025/08/03-21:35:33.096 290c Recovering log #131
+2025/08/04-10:03:54.440 4a98 Reusing MANIFEST D:\bapbapbap\BAP-laporan\backend\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2025/08/04-10:03:54.440 4a98 Recovering log #341
+2025/08/04-10:03:54.493 4a98 Reusing old log D:\bapbapbap\BAP-laporan\backend\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/000341.log 
+2025/08/04-10:03:54.493 4a98 Delete type=2 #330
+2025/08/04-10:03:54.493 4a98 Delete type=2 #331
+2025/08/04-10:03:54.493 4a98 Delete type=2 #332
+2025/08/04-10:03:54.493 4a98 Delete type=2 #333
+2025/08/04-10:03:54.493 4a98 Delete type=2 #334
+2025/08/04-10:03:54.493 4a98 Delete type=2 #335
+2025/08/04-10:03:54.493 4a98 Delete type=2 #336
+2025/08/04-10:03:54.493 4a98 Delete type=2 #337
+2025/08/04-10:03:54.493 4a98 Delete type=2 #338
+2025/08/04-10:03:54.493 4a98 Delete type=2 #339
+2025/08/04-10:03:54.494 4a98 Delete type=2 #343
+2025/08/04-10:03:56.488 4a98 Level-0 table #356: started
+2025/08/04-10:03:56.609 4a98 Level-0 table #356: 349138 bytes OK
+2025/08/04-10:03:56.637 4a98 Delete type=0 #341
+2025/08/04-10:03:56.637 4a98 Manual compaction at level-0 from '\x00 \x00\x00\x00' @ 72057594037927935 : 1 .. '\x00!\x00\x00\x00' @ 0 : 0; will stop at '\x00 \x00\x00\x05' @ 1656206 : 1
+2025/08/04-10:03:56.637 4a98 Compacting 1@0 + 0@1 files
+2025/08/04-10:03:56.709 4a98 Generated table #357@0: 8326 keys, 161068 bytes
+2025/08/04-10:03:56.709 4a98 Compacted 1@0 + 0@1 files => 161068 bytes
+2025/08/04-10:03:56.767 4a98 compacted to: files[ 0 1 10 0 0 0 0 ]
+2025/08/04-10:03:56.768 4a98 Delete type=2 #356
+2025/08/04-10:03:56.768 4170 Manual compaction at level-0 from '\x00 \x00\x00\x05' @ 1656206 : 1 .. '\x00!\x00\x00\x00' @ 0 : 0; will stop at (end)
+2025/08/04-10:03:57.796 4170 Compacting 1@1 + 10@2 files
+2025/08/04-10:03:58.051 4170 Generated table #358@1: 50882 keys, 2214817 bytes
+2025/08/04-10:03:58.238 4170 Generated table #359@1: 2784 keys, 2162504 bytes
+2025/08/04-10:03:58.491 4170 Generated table #360@1: 2489 keys, 2153312 bytes
+2025/08/04-10:03:58.752 4170 Generated table #361@1: 2541 keys, 2153823 bytes
+2025/08/04-10:03:59.026 4170 Generated table #362@1: 13862 keys, 2178034 bytes
+2025/08/04-10:03:59.269 4170 Generated table #363@1: 25781 keys, 2275192 bytes
+2025/08/04-10:03:59.439 4170 Generated table #364@1: 20781 keys, 2196483 bytes
+2025/08/04-10:03:59.601 4170 Generated table #365@1: 50969 keys, 2185595 bytes
+2025/08/04-10:03:59.845 4170 Generated table #366@1: 99350 keys, 2250931 bytes
+2025/08/04-10:04:00.039 4170 Generated table #367@1: 99554 keys, 2244978 bytes
+2025/08/04-10:04:00.039 4170 Compacted 1@1 + 10@2 files => 22015669 bytes
+2025/08/04-10:04:00.075 4170 compacted to: files[ 0 0 10 0 0 0 0 ]
