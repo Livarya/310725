@@ -372,14 +372,15 @@ const LaporanDetail = () => {
                   }}
                 >
                   <img
-                    src={`${API_BASE_URL}/uploads/${f}`}
-                    alt={`Foto ${idx + 1}`}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover'
-                    }}
-                  />
+  src={`http://localhost:5000/uploads/${f}`}
+  alt={`Foto ${idx + 1}`}
+  style={{
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover'
+  }}
+/>
+
                 </div>
               ))}
             </div>
