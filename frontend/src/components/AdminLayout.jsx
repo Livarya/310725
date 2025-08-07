@@ -17,6 +17,7 @@ const AdminLayout = ({ children, title }) => {
     { label: 'Semua Laporan', path: '/admin/laporan', icon: FaClipboardList },
     { label: 'Laporan Disetujui', path: '/admin/laporan-disetujui', icon: FaCheckCircle },
     { label: 'Laporan Ditolak', path: '/admin/laporan-ditolak', icon: FaTimesCircle },
+    { label: 'Wajib Pajak', path: '/superadmin/wajib-pajak', icon: FaUsers },
     { label: 'Data Pengguna', path: '/admin/users', icon: FaUsers },
     { label: 'Log Aktivitas', path: '/admin/logs', icon: FaHistory },
     { label: 'Logout', path: '/logout', icon: FaSignOutAlt, action: () => { logout(); navigate('/'); } },

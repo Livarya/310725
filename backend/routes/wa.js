@@ -1,7 +1,9 @@
 // backend/routes/wa.js
 const express = require('express');
 const router = express.Router();
-const { client } = require('../config/whatsapp'); // sudah ada file whatsapp.js
+const { client } = require('../config/whatsapp'); // s
+// udah ada file whatsapp.js
+
 
 router.post('/blast', async (req, res) => {
   const { numbers, message } = req.body;

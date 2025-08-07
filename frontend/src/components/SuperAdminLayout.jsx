@@ -19,9 +19,12 @@ const SuperAdminLayout = ({ children, title }) => {
     { label: 'Semua Laporan', path: '/superadmin/laporan', icon: FaClipboardList },
     { label: 'Laporan Disetujui', path: '/superadmin/laporan-disetujui', icon: FaCheckCircle },
     { label: 'Laporan Ditolak', path: '/superadmin/laporan-ditolak', icon: FaTimesCircle },
+    { label: 'Manage Wajib Pajak', path: '/superadmin/manajemen-wajibpajak', icon: FaUsers },
+    { label: 'Wajib Pajak', path: '/superadmin/wajib-pajak', icon: FaUsers },
     { label: 'Data Pengguna', path: '/superadmin/users', icon: FaUsers },
     { label: 'Log Aktivitas', path: '/superadmin/logs', icon: FaHistory },
     { label: 'Blast WhatsApp', path: '/superadmin/blast', icon: FaPaperPlane },
+   
     { label: 'Logout', path: '/logout', icon: FaSignOutAlt, action: () => { logout(); navigate('/'); } },
   ];
 

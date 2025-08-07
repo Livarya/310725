@@ -7,6 +7,7 @@ const superadminRoutes = require('./routes/superadmin');
 const { initWhatsApp } = require('./config/whatsapp');
 const app = express();
 const waRoute = require('./routes/wa');
+const wajibPajakRoutes = require('./routes/wajibpajak');
 
 connectDB();
 
@@ -30,6 +31,8 @@ app.use('/api/laporan', require('./routes/laporan'));
 app.use('/api/superadmin', superadminRoutes);
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/whatsapp', waRoute);
+app.use('/wajibpajak', wajibPajakRoutes); // atau sesuai nama file
+
 
 app.get('/', (req, res) => {
   res.send('API berjalan dengan baik 🚀');

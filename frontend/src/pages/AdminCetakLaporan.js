@@ -219,7 +219,14 @@ const AdminCetakLaporan = () => {
 
         {/* Data Objek Pemeriksaan */}
         <div style={{ marginBottom: '25px' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+        <table style={{ 
+  width: '100%', 
+  borderCollapse: 'collapse', 
+  fontSize: '12px',
+  backgroundColor: '#fff',  // pastikan latar putih
+  color: '#000'             // pastikan teks hitam
+}}>
+
             <tbody>
               <tr>
                 <td style={{ width: '35%', padding: '5px 0', verticalAlign: 'top' }}>

@@ -20,6 +20,8 @@ import ResetPassword from './pages/ResetPassword';
 import LogAktivitas from './pages/LogAktivitas';
 import BlastWhatsApp from './pages/BlastWhatsapp'; // ✅ import di sini
 import './App.css';
+import WajibPajakPage from './pages/wajibpajakpage';
+import WajibPajakManagePage from './pages/WajibPajakManagePage';
 
 
 const PrivateRoute = ({ children, role }) => {
@@ -88,6 +90,10 @@ function App() {
           <Route path="/admin/laporan/:id/cetak" element={
             <PrivateRoute role="admin"><AdminCetakLaporan /></PrivateRoute>
           } />
+            <Route path="/admin/wajib-pajak" element={
+            <PrivateRoute role="admin"><WajibPajakPage/></PrivateRoute>
+          } />
+          
 
           {/* ✅ Admin Blast WhatsApp */}
           <Route path="/admin/blast" element={
@@ -125,6 +131,12 @@ function App() {
           } />
           <Route path="/superadmin/laporan/:id/cetak" element={
             <PrivateRoute role="superadmin"><AdminCetakLaporan /></PrivateRoute>
+          } />
+            <Route path="/superadmin/wajib-pajak" element={
+            <PrivateRoute role="superadmin"><WajibPajakPage /></PrivateRoute>
+          } />
+               <Route path="/superadmin/manajemen-wajibpajak" element={
+            <PrivateRoute role="superadmin"><WajibPajakManagePage/></PrivateRoute>
           } />
 
           {/* ✅ Superadmin Blast WhatsApp */}
