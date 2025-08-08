@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import api, { API_BASE_URL } from '../config/api';
+import api, { BASE_URL } from '../config/api'; // Changed from API_BASE_URL to BASE_URL
 
 const AuthContext = createContext();
 
@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     setError(null);
     try {
-      console.log('Attempting login with:', { nip, baseUrl: API_BASE_URL });
+      console.log('Attempting login with:', { nip, baseUrl: BASE_URL }); // Changed to BASE_URL
       
       // Menggunakan axios instance dari config/api.js
       const res = await api.post('/api/auth/login', { 

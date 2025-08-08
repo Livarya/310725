@@ -17,6 +17,7 @@ const SuperAdminLayout = ({ children, title }) => {
   const menu = [
     { label: 'Dashboard', path: '/superadmin/dashboard', icon: FaTachometerAlt },
     { label: 'Semua Laporan', path: '/superadmin/laporan', icon: FaClipboardList },
+    { label: 'Instruksi', path: '/superadmin/intruksi', icon: FaCheckCircle },
     { label: 'Laporan Disetujui', path: '/superadmin/laporan-disetujui', icon: FaCheckCircle },
     { label: 'Laporan Ditolak', path: '/superadmin/laporan-ditolak', icon: FaTimesCircle },
     { label: 'Manage Wajib Pajak', path: '/superadmin/manajemen-wajibpajak', icon: FaUsers },

@@ -22,7 +22,8 @@ import BlastWhatsApp from './pages/BlastWhatsapp'; // ✅ import di sini
 import './App.css';
 import WajibPajakPage from './pages/wajibpajakpage';
 import WajibPajakManagePage from './pages/WajibPajakManagePage';
-
+import AdminBeriInstruksi from './pages/AdminBeriIntruksi';
+import UserLihatInstruksi from './pages/UserLihatIntruksi';
 
 const PrivateRoute = ({ children, role }) => {
   const { user } = useAuth();
@@ -60,6 +61,9 @@ function App() {
           <Route path="/profile" element={
             <PrivateRoute role="user"><ProfilePage /></PrivateRoute>
           } />
+          <Route path="/intruksi" element={
+            <PrivateRoute role="user"><UserLihatInstruksi /></PrivateRoute>
+          } />
 
           {/* 🛠️ Admin Routes */}
           <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
@@ -92,7 +96,11 @@ function App() {
           } />
             <Route path="/admin/wajib-pajak" element={
             <PrivateRoute role="admin"><WajibPajakPage/></PrivateRoute>
+          } /> 
+          <Route path="/admin/intruksi" element={
+            <PrivateRoute role="admin"><AdminBeriInstruksi/></PrivateRoute>
           } />
+          
           
 
           {/* ✅ Admin Blast WhatsApp */}
@@ -137,6 +145,9 @@ function App() {
           } />
                <Route path="/superadmin/manajemen-wajibpajak" element={
             <PrivateRoute role="superadmin"><WajibPajakManagePage/></PrivateRoute>
+          } />
+           <Route path="/superadmin/intruksi" element={
+            <PrivateRoute role="superadmin"><AdminBeriInstruksi/></PrivateRoute>
           } />
 
           {/* ✅ Superadmin Blast WhatsApp */}

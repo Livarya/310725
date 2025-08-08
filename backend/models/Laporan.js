@@ -6,12 +6,36 @@ const LaporanSchema = new mongoose.Schema({
   alamat: { type: String, required: true },
   hasil_pemeriksaan: { type: String, required: true },
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  status: { type: String, enum: ['Belum Dicek', 'Disetujui', 'Ditolak'], default: 'Belum Dicek' },
-  catatan: { type: String }, // Catatan dari admin saat menyetujui/menolak
+
+  // Status lebih detail
+  status: {
+    type: String,
+    enum: [
+      'Tugas Diberikan',
+      'Sedang Dikerjakan',
+      'Menunggu Verifikasi',
+      'Disetujui',
+      'Ditolak'
+    ],
+    default: 'Tugas Diberikan'
+  },
+
+  komentarAdmin: { type: String }, // Khusus untuk penolakan atau feedback admin
   tanggal: { type: Date, default: Date.now },
+
+  // Bukti lapangan
   foto: [{ type: String }],
   latitude: { type: Number },
   longitude: { type: Number },
+
+  // Log perubahan status
+  history: [
+    {
+      status: { type: String },
+      waktu: { type: Date, default: Date.now },
+      oleh: { type: String } // "admin" atau "user"
+    }
+  ]
 }, { timestamps: true });
 
-module.exports = mongoose.model('Laporan', LaporanSchema); 
+module.exports = mongoose.model('Laporan', LaporanSchema);

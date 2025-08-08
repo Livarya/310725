@@ -344,3 +344,46 @@ async function catatLog(laporanId, aktivitas, userId) {
     await log.save();
   } catch {}
 } 
+
+exports.updateStatusLaporan = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status, oleh, komentarAdmin } = req.body;
+
+    const allowedStatus = [
+      'Tugas Diberikan',
+      'Sedang Dikerjakan',
+      'Menunggu Verifikasi',
+      'Disetujui',
+      'Ditolak'
+    ];
+
+    if (!allowedStatus.includes(status)) {
+      return res.status(400).json({ message: 'Status tidak valid.' });
+    }
+
+    const laporan = await Laporan.findById(id);
+    if (!laporan) {
+      return res.status(404).json({ message: 'Laporan tidak ditemukan.' });
+    }
+
+    // Update status dan komentar jika ada
+    laporan.status = status;
+    if (status === 'Ditolak' && komentarAdmin) {
+      laporan.komentarAdmin = komentarAdmin;
+    }
+
+    // Tambahkan ke history
+    laporan.history.push({
+      status,
+      waktu: new Date(),
+      oleh: oleh || 'unknown' // admin / user (opsional)
+    });
+
+    await laporan.save();
+    res.json({ message: 'Status laporan diperbarui.', laporan });
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

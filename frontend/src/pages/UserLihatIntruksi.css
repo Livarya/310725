@@ -1,0 +1,37 @@
+.user-instruksi-container {
+    max-width: 900px;
+    margin: auto;
+    padding: 2rem;
+  }
+  
+  .instruksi-list {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  
+  .instruksi-card {
+    background: #f9f9f9;
+    padding: 1rem;
+    border-left: 5px solid #2196f3;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  
+  .instruksi-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .instruksi-card h3 {
+    margin: 0;
+    color: #333;
+  }
+  
+  .instruksi-card p {
+    margin: 0.3rem 0;
+    font-size: 0.95rem;
+    color: #555;
+  }
+  

@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const laporanController = require('../controllers/laporanController');
 const auth = require('../middleware/auth');
 const { isAdmin } = require('../middleware/role');
 const multer = require('multer');
@@ -24,6 +25,7 @@ const {
   generateAndSendPdf
 } = require('../controllers/laporanController');
 
+
 router.post('/upload', auth, upload.array('foto', 4), (req, res) => {
   if (!req.files || req.files.length === 0) return res.status(400).json({ msg: 'No file uploaded' });
   if (req.files.length > 4) return res.status(400).json({ msg: 'Maksimal 4 foto' });
@@ -36,7 +38,7 @@ router.get('/', auth, getAllLaporan);
 router.get('/:id', auth, getLaporanById);
 router.put('/:id/status', auth, isAdmin, updateStatusLaporan);
 router.delete('/:id', auth, deleteLaporan);
-
+router.patch('/:id/status', laporanController.updateStatusLaporan);
 // Route untuk generate dan kirim PDF via WhatsApp
 router.post('/:id/send-pdf', auth, isAdmin, generateAndSendPdf);
 

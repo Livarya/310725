@@ -14,6 +14,7 @@ const Layout = ({ children, title }) => {
   // Define menu items with icon components
   const menu = [
     { label: 'Dashboard', path: '/dashboard', icon: FaListAlt },
+    { label: 'Tugas', path: '/intruksi', icon: FaListAlt },
     { label: 'Buat Laporan Baru', path: '/buat-laporan', icon: FaPlus },
     { label: 'Riwayat Laporan', path: '/riwayat-laporan', icon: FaListAlt },
     { label: 'Profil Saya', path: '/profile', icon: FaUser },
