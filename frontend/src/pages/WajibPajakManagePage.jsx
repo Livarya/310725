@@ -16,9 +16,11 @@ const WajibPajakManagePage = () => {
 
   const fetchData = async () => {
     try {
-      const res = await api.get('/wajibpajak/semua');
+      // Fix: Add /api prefix
+      const res = await api.get('/api/wajibpajak/semua');
       setData(res.data);
     } catch (err) {
+      console.error('Error fetching data:', err);
       alert('Gagal mengambil data.');
     }
   };
@@ -35,9 +37,11 @@ const WajibPajakManagePage = () => {
 
   const handleUpdate = async (id, updatedFields) => {
     try {
-      await api.put(`/wajibpajak/${id}`, updatedFields);
+      // Fix: Add /api prefix
+      await api.put(`/api/wajibpajak/${id}`, updatedFields);
       fetchData();
-    } catch {
+    } catch (err) {
+      console.error('Error updating data:', err);
       alert('Gagal mengupdate data');
     }
   };
@@ -45,9 +49,11 @@ const WajibPajakManagePage = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Yakin ingin menghapus data ini?')) return;
     try {
-      await api.delete(`/wajibpajak/${id}`);
+      // Fix: Add /api prefix
+      await api.delete(`/api/wajibpajak/${id}`);
       fetchData();
-    } catch {
+    } catch (err) {
+      console.error('Error deleting data:', err);
       alert('Gagal menghapus data');
     }
   };
@@ -60,12 +66,14 @@ const WajibPajakManagePage = () => {
 
     setLoading(true);
     try {
-      const res = await api.post('/wajibpajak/blast', {
+      // Fix: Add /api prefix
+      const res = await api.post('/api/wajibpajak/blast', {
         ids: selectedIds,
         message: customMessage,
       });
       alert(res.data.message);
-    } catch {
+    } catch (err) {
+      console.error('Error sending WA blast:', err);
       alert('Gagal mengirim pesan WA.');
     }
     setLoading(false);
@@ -76,6 +84,25 @@ const WajibPajakManagePage = () => {
       <div className="container">
         <h2>Manajemen Wajib Pajak</h2>
 
+        <div className="stats-grid">
+          <div className="stat-card">
+            <div className="stat-number">{data.length}</div>
+            <div className="stat-label">Total Wajib Pajak</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-number">{data.filter(d => d.status === 'sudah').length}</div>
+            <div className="stat-label">Sudah Lapor</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-number">{data.filter(d => d.status === 'belum').length}</div>
+            <div className="stat-label">Belum Lapor</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-number">{selectedIds.length}</div>
+            <div className="stat-label">Dipilih</div>
+          </div>
+        </div>
+
         <div className="filter">
           <label>Filter Status:</label>
           <select value={filter} onChange={(e) => setFilter(e.target.value)}>
@@ -85,7 +112,8 @@ const WajibPajakManagePage = () => {
           </select>
         </div>
 
-        <table className="table">
+        <div className="table-container">
+          <table className="table">
           <thead>
             <tr>
               <th>Pilih</th>
@@ -97,59 +125,87 @@ const WajibPajakManagePage = () => {
             </tr>
           </thead>
           <tbody>
-            {filteredData.length === 0 && (
+            {filteredData.length === 0 ? (
               <tr>
-                <td colSpan="6">Tidak ada data.</td>
+                <td colSpan="6" className="empty-state">
+                  <div className="empty-state-icon">🔍</div>
+                  <div className="empty-state-text">
+                    {filter === 'semua' ? 'Belum ada data wajib pajak' : `Tidak ada data dengan status "${filter}"`}
+                  </div>
+                </td>
               </tr>
+            ) : (
+              filteredData.map((d) => (
+                <tr key={d._id}>
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(d._id)}
+                      onChange={() => handleCheckboxChange(d._id)}
+                    />
+                  </td>
+                  <td>{d.nama}</td>
+                  <td>{d.npwp}</td>
+                  <td>
+                    <input
+                      type="text"
+                      value={d.nomor_wa}
+                      onChange={(e) =>
+                        handleUpdate(d._id, { nomor_wa: e.target.value })
+                      }
+                    />
+                  </td>
+                  <td>
+                    <select
+                      value={d.status}
+                      onChange={(e) =>
+                        handleUpdate(d._id, { status: e.target.value })
+                      }
+                    >
+                      <option value="belum">Belum Lapor</option>
+                      <option value="sudah">Sudah Lapor</option>
+                    </select>
+                  </td>
+                  <td>
+                    <button className="btn-delete" onClick={() => handleDelete(d._id)}>
+                      🗑️ Hapus
+                    </button>
+                  </td>
+                </tr>
+              ))
             )}
-            {filteredData.map((d) => (
-              <tr key={d._id}>
-                <td>
-                  <input
-                    type="checkbox"
-                    checked={selectedIds.includes(d._id)}
-                    onChange={() => handleCheckboxChange(d._id)}
-                  />
-                </td>
-                <td>{d.nama}</td>
-                <td>{d.npwp}</td>
-                <td>
-                  <input
-                    type="text"
-                    value={d.nomor_wa}
-                    onChange={(e) =>
-                      handleUpdate(d._id, { nomor_wa: e.target.value })
-                    }
-                  />
-                </td>
-                <td>
-                  <select
-                    value={d.status}
-                    onChange={(e) =>
-                      handleUpdate(d._id, { status: e.target.value })
-                    }
-                  >
-                    <option value="belum">Belum</option>
-                    <option value="sudah">Sudah</option>
-                  </select>
-                </td>
-                <td>
-                  <button onClick={() => handleDelete(d._id)}>Hapus</button>
-                </td>
-              </tr>
-            ))}
           </tbody>
         </table>
+        </div>
 
         <div className="blast-section">
+          <h3>📱 Kirim Pesan WhatsApp</h3>
           <textarea
-            placeholder="Pesan custom untuk WA..."
+            placeholder="Ketik pesan yang akan dikirim ke wajib pajak yang dipilih...&#10;&#10;Contoh:&#10;Halo [Nama], reminder bahwa batas waktu pelaporan pajak akan segera berakhir. Harap segera melengkapi pelaporan Anda. Terima kasih."
             value={customMessage}
             onChange={(e) => setCustomMessage(e.target.value)}
           ></textarea>
-          <button onClick={handleBlast} disabled={loading}>
-            {loading ? 'Mengirim...' : 'Kirim WA ke yang Dipilih'}
+          <button 
+            className="btn-blast" 
+            onClick={handleBlast} 
+            disabled={loading || !customMessage.trim() || selectedIds.length === 0}
+          >
+            {loading ? (
+              <>
+                <div className="loading-spinner"></div>
+                Mengirim...
+              </>
+            ) : (
+              <>
+                📨 Kirim WA ke {selectedIds.length} Nomor
+              </>
+            )}
           </button>
+          {selectedIds.length === 0 && (
+            <p style={{ color: '#ef4444', fontSize: '0.875rem', marginTop: '8px' }}>
+              ⚠️ Pilih minimal 1 wajib pajak untuk mengirim pesan
+            </p>
+          )}
         </div>
       </div>
     </SuperAdminLayout>

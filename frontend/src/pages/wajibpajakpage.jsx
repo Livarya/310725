@@ -15,9 +15,11 @@ const WajibPajakPage = () => {
 
   const fetchData = async () => {
     try {
-      const res = await api.get('/wajibpajak/semua');
+      // Fix: Add /api prefix
+      const res = await api.get('/api/wajibpajak/semua');
       setData(res.data);
     } catch (err) {
+      console.error('Error fetching data:', err);
       alert('Gagal mengambil data wajib pajak.');
     }
   };
@@ -33,11 +35,13 @@ const WajibPajakPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await api.post('/wajibpajak/tambah', form);
+      // Fix: Add /api prefix
+      await api.post('/api/wajibpajak/tambah', form);
       alert('Wajib Pajak berhasil ditambahkan!');
       setForm({ nama: '', npwp: '', nomor_wa: '', status: 'belum' });
       fetchData();
     } catch (err) {
+      console.error('Error adding data:', err);
       alert('Gagal menambahkan data.');
     }
   };
@@ -68,17 +72,27 @@ const WajibPajakPage = () => {
             </tr>
           </thead>
           <tbody>
-            {data.length === 0 && (
-              <tr><td colSpan="4">Belum ada data.</td></tr>
-            )}
-            {data.map((d, i) => (
-              <tr key={i}>
-                <td>{d.nama}</td>
-                <td>{d.npwp}</td>
-                <td>{d.nomor_wa}</td>
-                <td>{d.status}</td>
+            {data.length === 0 ? (
+              <tr>
+                <td colSpan="4" className="empty-state">
+                  <div className="empty-state-icon">📋</div>
+                  <div className="empty-state-text">Belum ada data wajib pajak</div>
+                </td>
               </tr>
-            ))}
+            ) : (
+              data.map((d, i) => (
+                <tr key={d._id || i} className="slide-in-up">
+                  <td>{d.nama}</td>
+                  <td>{d.npwp}</td>
+                  <td>{d.nomor_wa}</td>
+                  <td>
+                    <span className={`status-badge status-${d.status}`}>
+                      {d.status === 'sudah' ? '✅ Sudah' : '⏳ Belum'}
+                    </span>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
