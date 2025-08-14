@@ -10,32 +10,42 @@ import SuperAdminLayout from '../components/SuperAdminLayout';
 const customStyles = {
   control: (provided) => ({
     ...provided,
-    backgroundColor: '#1a1f33',
-    borderColor: '#00ffaa',
-    color: '#fff',
+    backgroundColor: "#1a2238",
+    borderColor: "#2d3b57",
+    color: "#fff",
+    minHeight: "40px",
+    boxShadow: "none",
+    "&:hover": { borderColor: "#3b82f6" },
   }),
   menu: (provided) => ({
     ...provided,
-    backgroundColor: '#1a1f33',
-    color: '#fff',
+    backgroundColor: "#1a2238",
+    borderRadius: "6px",
+    border: "1px solid #2d3b57",
+    overflow: "hidden",
   }),
   option: (provided, state) => ({
     ...provided,
-    backgroundColor: state.isFocused ? '#00ffaa' : '#1a1f33',
-    color: state.isFocused ? '#000' : '#fff',
+    backgroundColor: state.isFocused ? "#2d3b57" : "#1a2238",
+    color: "#fff",
+    cursor: "pointer",
   }),
   singleValue: (provided) => ({
     ...provided,
-    color: '#fff',
+    color: "#fff",
   }),
   multiValue: (provided) => ({
     ...provided,
-    backgroundColor: '#00ffaa',
-    color: '#000',
+    backgroundColor: "#2d3b57",
+    color: "#fff",
   }),
   multiValueLabel: (provided) => ({
     ...provided,
-    color: '#000',
+    color: "#fff",
+  }),
+  placeholder: (provided) => ({
+    ...provided,
+    color: "#9ca3af",
   }),
 };
 
@@ -86,7 +96,6 @@ const BlastWhatsapp = () => {
         message: message.trim(),
         numbers: selectedUsers.map(user => {
           let number = user.value.trim();
-          // Ubah awalan 08 menjadi 62
           if (number.startsWith('08')) {
             number = '62' + number.slice(1);
           }

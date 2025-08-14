@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import api, { API_BASE_URL }  from '../config/api';
+import api from '../config/api';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 
-// Titik pusat area geo-fencing (misal: Bandung)
-const GEO_CENTER = { lat: -6.911303, lng: 107.610311};
+// Titik pusat area geo-fencing
+const GEO_CENTER = { lat: -6.911303, lng: 107.610311 };
 const GEO_RADIUS_M = 50000; // 5 km
 
 function haversine(lat1, lon1, lat2, lon2) {
@@ -30,7 +30,7 @@ const BuatLaporan = () => {
     hasil_pemeriksaan: '',
     foto: []
   });
-  
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [location, setLocation] = useState({ lat: null, lng: null });
@@ -60,19 +60,19 @@ const BuatLaporan = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
-    
+
     if (formData.npwpd.length !== 13 || !/^\d{13}$/.test(formData.npwpd)) {
       setError('NPWPD harus 13 digit angka!');
       setLoading(false);
       return;
     }
-    
+
     if (!location.lat || !location.lng) {
       setError('Lokasi tidak tersedia. Pastikan GPS aktif dan izinkan akses lokasi.');
       setLoading(false);
       return;
     }
-    
+
     // Geo-fencing validation
     const distance = haversine(location.lat, location.lng, GEO_CENTER.lat, GEO_CENTER.lng);
     if (distance > GEO_RADIUS_M) {
@@ -110,14 +110,24 @@ const BuatLaporan = () => {
   const handleChange = (e) => {
     if (e.target.name === 'foto') {
       const files = Array.from(e.target.files);
-      if (files.length > 4) {
+      if (!files.length) return;
+
+      // Gabungkan foto lama + baru
+      const combinedFiles = [...formData.foto, ...files];
+
+      if (combinedFiles.length > 4) {
         setError('Maksimal 4 foto yang dapat diunggah');
         return;
       }
-      setFormData({ ...formData, foto: files });
-      // Generate preview URLs
-      const urls = files.map(file => URL.createObjectURL(file));
-      setPreviewUrls(urls);
+
+      setFormData({ ...formData, foto: combinedFiles });
+
+      // Update preview
+      const newUrls = [...previewUrls, ...files.map(file => URL.createObjectURL(file))];
+      setPreviewUrls(newUrls);
+
+      // Reset input supaya bisa ambil lagi
+      e.target.value = "";
     } else {
       setFormData({ ...formData, [e.target.name]: e.target.value });
     }
@@ -166,15 +176,9 @@ const BuatLaporan = () => {
         </div>
 
         <form onSubmit={handleSubmit}>
+          {/* Nama Merk */}
           <div style={{ marginBottom: '20px' }}>
-            <label style={{
-              display: 'block',
-              color: '#fff',
-              marginBottom: '8px',
-              fontSize: '14px'
-            }}>
-              Nama Merk *
-            </label>
+            <label style={{ display: 'block', color: '#fff', marginBottom: '8px', fontSize: '14px' }}>Nama Merk *</label>
             <input
               type="text"
               name="nama_merk"
@@ -193,15 +197,9 @@ const BuatLaporan = () => {
             />
           </div>
 
+          {/* Alamat */}
           <div style={{ marginBottom: '20px' }}>
-            <label style={{
-              display: 'block',
-              color: '#fff',
-              marginBottom: '8px',
-              fontSize: '14px'
-            }}>
-              Alamat *
-            </label>
+            <label style={{ display: 'block', color: '#fff', marginBottom: '8px', fontSize: '14px' }}>Alamat *</label>
             <textarea
               name="alamat"
               value={formData.alamat}
@@ -221,15 +219,9 @@ const BuatLaporan = () => {
             />
           </div>
 
+          {/* NPWPD */}
           <div style={{ marginBottom: '20px' }}>
-            <label style={{
-              display: 'block',
-              color: '#fff',
-              marginBottom: '8px',
-              fontSize: '14px'
-            }}>
-              NPWPD * (13 digit angka)
-            </label>
+            <label style={{ display: 'block', color: '#fff', marginBottom: '8px', fontSize: '14px' }}>NPWPD * (13 digit angka)</label>
             <input
               type="text"
               name="npwpd"
@@ -258,15 +250,9 @@ const BuatLaporan = () => {
             </div>
           </div>
 
+          {/* Hasil Pemeriksaan */}
           <div style={{ marginBottom: '20px' }}>
-            <label style={{
-              display: 'block',
-              color: '#fff',
-              marginBottom: '8px',
-              fontSize: '14px'
-            }}>
-              Hasil Pemeriksaan *
-            </label>
+            <label style={{ display: 'block', color: '#fff', marginBottom: '8px', fontSize: '14px' }}>Hasil Pemeriksaan *</label>
             <textarea
               name="hasil_pemeriksaan"
               value={formData.hasil_pemeriksaan}
@@ -287,22 +273,15 @@ const BuatLaporan = () => {
             />
           </div>
 
+          {/* Foto Dokumentasi */}
           <div style={{ marginBottom: '30px' }}>
-            <label style={{
-              display: 'block',
-              color: '#fff',
-              marginBottom: '8px',
-              fontSize: '14px'
-            }}>
-              Foto Dokumentasi * (Maksimal 4 foto)
-            </label>
+            <label style={{ display: 'block', color: '#fff', marginBottom: '8px', fontSize: '14px' }}>Foto Dokumentasi * (Maksimal 4 foto)</label>
             <input
               type="file"
               name="foto"
               onChange={handleChange}
-              multiple
               accept="image/*"
-              required
+              capture="environment"
               style={{
                 width: '100%',
                 padding: '10px 12px',
@@ -312,7 +291,7 @@ const BuatLaporan = () => {
                 color: '#fff'
               }}
             />
-            
+
             {/* Preview Foto */}
             {previewUrls.length > 0 && (
               <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginTop: 12 }}>
@@ -321,13 +300,7 @@ const BuatLaporan = () => {
                     <img 
                       src={url} 
                       alt={`preview-${idx}`} 
-                      style={{ 
-                        width: 80, 
-                        height: 80, 
-                        objectFit: 'cover', 
-                        borderRadius: 8, 
-                        border: '1px solid #ccc' 
-                      }} 
+                      style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8, border: '1px solid #ccc' }} 
                     />
                     <div style={{
                       position: 'absolute',
@@ -345,7 +318,7 @@ const BuatLaporan = () => {
                       cursor: 'pointer'
                     }} onClick={(e) => {
                       e.stopPropagation();
-                      const newFiles = Array.from(formData.foto).filter((_, i) => i !== idx);
+                      const newFiles = formData.foto.filter((_, i) => i !== idx);
                       const newUrls = previewUrls.filter((_, i) => i !== idx);
                       setFormData({...formData, foto: newFiles});
                       setPreviewUrls(newUrls);
@@ -359,6 +332,7 @@ const BuatLaporan = () => {
             </div>
           </div>
 
+          {/* Submit */}
           <button
             type="submit"
             disabled={loading || !location.lat || !location.lng}
@@ -383,7 +357,7 @@ const BuatLaporan = () => {
           </button>
         </form>
       </div>
-      
+
       {/* Lightbox Preview */}
       {showPreview && previewUrls.length > 0 && (
         <div style={{

@@ -1,1 +1,36 @@
-node_modules
+# Node modules
+node_modules/
+
+# WhatsApp Web session & cache
+backend/.wwebjs_auth/
+backend/.wwebjs_cache/
+
+# Log files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Uploads (jika hanya hasil upload user, bukan file permanen yang dibutuhkan)
+backend/uploads/
+
+# Build output (kalau nanti ada frontend build)
+dist/
+build/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp/
+*.tmp
+*.temp
+
+# VSCode settings (opsional, kalau tidak mau dishare config editor)
+.vscode/
