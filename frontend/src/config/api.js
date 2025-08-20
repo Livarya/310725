@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Base URL configuration
-export const BASE_URL = 'https://6ef7da3f6f6d.ngrok-free.app';
+export const BASE_URL = 'https://07ae064aec04.ngrok-free.app';
 
 // Create axios instance
 const api = axios.create({
@@ -59,7 +59,6 @@ api.interceptors.response.use(
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       
-      // Redirect to login if not already there
       if (window.location.pathname !== '/login') {
         window.location.href = '/login';
       }
@@ -69,12 +68,38 @@ api.interceptors.response.use(
   }
 );
 
+// =======================
+// Face API helpers
+// =======================
+export const faceAPI = {
+  // Check status
+  async getStatus() {
+    try {
+      const res = await api.get('/api/face/status');
+      return { success: true, data: res.data };
+    } catch (error) {
+      return { success: false, error: error.response?.data?.message || error.message };
+    }
+  },
+
+  // Register face
+  async registerFace(data) {
+    try {
+      const res = await api.post('/api/face/register', data);
+      return { success: true, data: res.data };
+    } catch (error) {
+      return { success: false, error: error.response?.data?.message || error.message };
+    }
+  }
+};
+
+// =======================
 // Instruksi API helpers
+// =======================
 export const instruksiAPI = {
-  // Get my instructions
   async getMyInstructions() {
     try {
-      const response = await api.get('/api/instruksi/me'); // Fixed: added /api prefix
+      const response = await api.get('/api/instruksi/me');
       return {
         success: true,
         data: response.data.data,
@@ -87,11 +112,9 @@ export const instruksiAPI = {
       };
     }
   },
-
-  // Get all instructions (admin)
   async getAllInstructions(params = {}) {
     try {
-      const response = await api.get('/api/instruksi', { params }); // Fixed: added /api prefix
+      const response = await api.get('/api/instruksi', { params });
       return {
         success: true,
         data: response.data.data,
@@ -104,11 +127,9 @@ export const instruksiAPI = {
       };
     }
   },
-
-  // Get user instructions (admin)
   async getUserInstructions(userId, params = {}) {
     try {
-      const response = await api.get(`/api/instruksi/user/${userId}`, { params }); // Fixed: added /api prefix
+      const response = await api.get(`/api/instruksi/user/${userId}`, { params });
       return {
         success: true,
         data: response.data.data,
@@ -121,29 +142,15 @@ export const instruksiAPI = {
       };
     }
   },
-
-  // Create instruction (admin)
   async createInstruction(data) {
     try {
-      console.log('📤 Creating instruction with raw data:', JSON.stringify(data, null, 2));
-      
-      // Validate required fields on client side
       if (!data.instruksi || !data.instruksi.trim()) {
-        console.error('❌ Client validation failed: instruksi is empty');
         throw new Error('Instruksi wajib diisi');
       }
-      
       if (!data.user || !Array.isArray(data.user) || data.user.length === 0) {
-        console.error('❌ Client validation failed: user array is empty');
         throw new Error('Minimal pilih 1 user penerima');
       }
-      
-      // Log the exact payload being sent
-      console.log('📤 Sending POST request to /api/instruksi with payload:', JSON.stringify(data, null, 2));
-      
       const response = await api.post('/api/instruksi', data);
-      console.log('✅ Instruction created successfully:', response.data);
-      
       return {
         success: true,
         data: response.data.data,
@@ -151,25 +158,17 @@ export const instruksiAPI = {
         message: response.data.message
       };
     } catch (error) {
-      console.error('❌ Error creating instruction - Full error:', error);
-      console.error('❌ Error response data:', error.response?.data);
-      console.error('❌ Error response status:', error.response?.status);
-      console.error('❌ Error response headers:', error.response?.headers);
-      
       return {
         success: false,
-        error: error.response?.data?.message || 
+        error: error.response?.data?.message ||
                error.response?.data?.errors?.[0]?.msg ||
-               error.message || 
-               'Gagal membuat instruksi'
+               error.message || 'Gagal membuat instruksi'
       };
     }
   },
-
-  // Update instruction status
   async updateStatus(instruksiId, status) {
     try {
-      const response = await api.put(`/api/instruksi/${instruksiId}/status`, { status }); // Fixed: added /api prefix
+      const response = await api.put(`/api/instruksi/${instruksiId}/status`, { status });
       return {
         success: true,
         data: response.data.data,
@@ -182,11 +181,9 @@ export const instruksiAPI = {
       };
     }
   },
-
-  // Update full instruction (admin)
   async updateInstruction(instruksiId, data) {
     try {
-      const response = await api.put(`/api/instruksi/${instruksiId}`, data); // Fixed: added /api prefix
+      const response = await api.put(`/api/instruksi/${instruksiId}`, data);
       return {
         success: true,
         data: response.data.data,
@@ -199,11 +196,9 @@ export const instruksiAPI = {
       };
     }
   },
-
-  // Delete instruction (admin)
   async deleteInstruction(instruksiId) {
     try {
-      const response = await api.delete(`/api/instruksi/${instruksiId}`); // Fixed: added /api prefix
+      const response = await api.delete(`/api/instruksi/${instruksiId}`);
       return {
         success: true,
         message: response.data.message
@@ -217,37 +212,24 @@ export const instruksiAPI = {
   }
 };
 
+// =======================
 // Users API helpers
+// =======================
 export const usersAPI = {
-  // Get all users
   async getAllUsers() {
     try {
-      const response = await api.get('/api/users'); // Fixed: added /api prefix
-      return {
-        success: true,
-        data: response.data
-      };
+      const response = await api.get('/api/users');
+      return { success: true, data: response.data };
     } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.message || error.message || 'Gagal mengambil data users'
-      };
+      return { success: false, error: error.response?.data?.message || error.message || 'Gagal mengambil data users' };
     }
   },
-
-  // Get user by ID
   async getUserById(userId) {
     try {
-      const response = await api.get(`/api/users/${userId}`); // Fixed: added /api prefix
-      return {
-        success: true,
-        data: response.data
-      };
+      const response = await api.get(`/api/users/${userId}`);
+      return { success: true, data: response.data };
     } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.message || error.message || 'Gagal mengambil data user'
-      };
+      return { success: false, error: error.response?.data?.message || error.message || 'Gagal mengambil data user' };
     }
   }
 };
@@ -255,6 +237,7 @@ export const usersAPI = {
 // Export additional useful properties
 export const baseURL = BASE_URL;
 export const apiHelpers = {
+  faceAPI,
   instruksiAPI,
   usersAPI
 };

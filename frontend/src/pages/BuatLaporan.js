@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import api from '../config/api';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
+import FaceCheck from '../components/FaceCheck';
 
 // Titik pusat area geo-fencing
 const GEO_CENTER = { lat: -6.911303, lng: 107.610311 };
@@ -13,22 +14,26 @@ function haversine(lat1, lon1, lat2, lon2) {
   const R = 6371000; // meters
   const dLat = toRad(lat2 - lat1);
   const dLon = toRad(lon2 - lon1);
-  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-            Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-            Math.sin(dLon/2) * Math.sin(dLon/2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) *
+      Math.cos(toRad(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 }
 
 const BuatLaporan = () => {
   const { token } = useAuth();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    nama_merk: '',
-    alamat: '',
-    npwpd: '',
-    hasil_pemeriksaan: '',
-    foto: []
+
+  // ✅ formData di-persist pakai localStorage
+  const [formData, setFormData] = useState(() => {
+    const saved = localStorage.getItem("buatLaporanForm");
+    return saved
+      ? JSON.parse(saved)
+      : { nama_merk: '', alamat: '', npwpd: '', hasil_pemeriksaan: '', foto: [] };
   });
 
   const [loading, setLoading] = useState(false);
@@ -39,7 +44,15 @@ const BuatLaporan = () => {
   const [showPreview, setShowPreview] = useState(false);
   const [previewIdx, setPreviewIdx] = useState(0);
 
-  React.useEffect(() => {
+  // Modal FaceCheck
+  const [showFaceModal, setShowFaceModal] = useState(false);
+
+  // ✅ simpan ke localStorage setiap kali formData berubah
+  useEffect(() => {
+    localStorage.setItem("buatLaporanForm", JSON.stringify(formData));
+  }, [formData]);
+
+  useEffect(() => {
     if (!('geolocation' in navigator)) {
       setLocError('Geolocation tidak didukung browser.');
       return;
@@ -57,12 +70,12 @@ const BuatLaporan = () => {
   }, []);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     setLoading(true);
     setError('');
 
-    if (formData.npwpd.length !== 13 || !/^\d{13}$/.test(formData.npwpd)) {
-      setError('NPWPD harus 13 digit angka!');
+    if (formData.npwpd.length !== 13 || !/^[a-zA-Z0-9]{13}$/.test(formData.npwpd)) {
+      setError('NPWPD harus 13 karakter (huruf/angka)!');
       setLoading(false);
       return;
     }
@@ -94,14 +107,20 @@ const BuatLaporan = () => {
 
     try {
       await api.post('/api/laporan', data, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
+      // ✅ Bersihkan form & localStorage setelah sukses
+      localStorage.removeItem("buatLaporanForm");
+      setFormData({ nama_merk: '', alamat: '', npwpd: '', hasil_pemeriksaan: '', foto: [] });
+      setPreviewUrls([]);
       navigate('/dashboard');
     } catch (err) {
       console.error('Error creating laporan:', err);
-      setError(err.response?.data?.msg || err.response?.data?.message || 'Terjadi kesalahan saat mengirim laporan');
+      setError(
+        err.response?.data?.msg ||
+          err.response?.data?.message ||
+          'Terjadi kesalahan saat mengirim laporan'
+      );
     } finally {
       setLoading(false);
     }
@@ -112,9 +131,7 @@ const BuatLaporan = () => {
       const files = Array.from(e.target.files);
       if (!files.length) return;
 
-      // Gabungkan foto lama + baru
       const combinedFiles = [...formData.foto, ...files];
-
       if (combinedFiles.length > 4) {
         setError('Maksimal 4 foto yang dapat diunggah');
         return;
@@ -122,12 +139,10 @@ const BuatLaporan = () => {
 
       setFormData({ ...formData, foto: combinedFiles });
 
-      // Update preview
-      const newUrls = [...previewUrls, ...files.map(file => URL.createObjectURL(file))];
+      const newUrls = [...previewUrls, ...files.map((file) => URL.createObjectURL(file))];
       setPreviewUrls(newUrls);
 
-      // Reset input supaya bisa ambil lagi
-      e.target.value = "";
+      e.target.value = '';
     } else {
       setFormData({ ...formData, [e.target.name]: e.target.value });
     }
@@ -137,48 +152,64 @@ const BuatLaporan = () => {
     <Layout title="Buat Laporan Baru">
       <div style={{ maxWidth: '600px', margin: '0 auto' }}>
         {error && (
-          <div style={{
-            background: 'rgba(239, 68, 68, 0.1)',
-            color: '#ef4444',
-            padding: '12px',
-            borderRadius: '8px',
-            marginBottom: '20px',
-            border: '1px solid rgba(239, 68, 68, 0.2)'
-          }}>
+          <div
+            style={{
+              background: 'rgba(239, 68, 68, 0.1)',
+              color: '#ef4444',
+              padding: '12px',
+              borderRadius: '8px',
+              marginBottom: '20px',
+              border: '1px solid rgba(239, 68, 68, 0.2)'
+            }}
+          >
             {error}
           </div>
         )}
         {locError && (
-          <div style={{
-            background: 'rgba(239, 68, 68, 0.1)',
-            color: '#ef4444',
-            padding: '12px',
-            borderRadius: '8px',
-            marginBottom: '20px',
-            border: '1px solid rgba(239, 68, 68, 0.2)'
-          }}>
+          <div
+            style={{
+              background: 'rgba(239, 68, 68, 0.1)',
+              color: '#ef4444',
+              padding: '12px',
+              borderRadius: '8px',
+              marginBottom: '20px',
+              border: '1px solid rgba(239, 68, 68, 0.2)'
+            }}
+          >
             {locError}
           </div>
         )}
 
         {/* Status lokasi */}
-        <div style={{
-          background: location.lat && location.lng ? 'rgba(34, 197, 94, 0.1)' : 'rgba(251, 191, 36, 0.1)',
-          color: location.lat && location.lng ? '#22c55e' : '#fbbf24',
-          padding: '12px',
-          borderRadius: '8px',
-          marginBottom: '20px',
-          border: `1px solid ${location.lat && location.lng ? 'rgba(34, 197, 94, 0.2)' : 'rgba(251, 191, 36, 0.2)'}`
-        }}>
-          <strong>Status Lokasi:</strong> {location.lat && location.lng 
-            ? `Lokasi terdeteksi (${location.lat.toFixed(6)}, ${location.lng.toFixed(6)})` 
+        <div
+          style={{
+            background:
+              location.lat && location.lng
+                ? 'rgba(34, 197, 94, 0.1)'
+                : 'rgba(251, 191, 36, 0.1)',
+            color: location.lat && location.lng ? '#22c55e' : '#fbbf24',
+            padding: '12px',
+            borderRadius: '8px',
+            marginBottom: '20px',
+            border: `1px solid ${
+              location.lat && location.lng
+                ? 'rgba(34, 197, 94, 0.2)'
+                : 'rgba(251, 191, 36, 0.2)'
+            }`
+          }}
+        >
+          <strong>Status Lokasi:</strong>{' '}
+          {location.lat && location.lng
+            ? `Lokasi terdeteksi (${location.lat.toFixed(6)}, ${location.lng.toFixed(6)})`
             : 'Menunggu lokasi GPS...'}
         </div>
 
-        <form onSubmit={handleSubmit}>
+        <form>
           {/* Nama Merk */}
           <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', color: '#fff', marginBottom: '8px', fontSize: '14px' }}>Nama Merk *</label>
+            <label style={{ display: 'block', color: '#fff', marginBottom: '8px', fontSize: '14px' }}>
+              Nama Merk *
+            </label>
             <input
               type="text"
               name="nama_merk"
@@ -199,7 +230,9 @@ const BuatLaporan = () => {
 
           {/* Alamat */}
           <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', color: '#fff', marginBottom: '8px', fontSize: '14px' }}>Alamat *</label>
+            <label style={{ display: 'block', color: '#fff', marginBottom: '8px', fontSize: '14px' }}>
+              Alamat *
+            </label>
             <textarea
               name="alamat"
               value={formData.alamat}
@@ -221,20 +254,22 @@ const BuatLaporan = () => {
 
           {/* NPWPD */}
           <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', color: '#fff', marginBottom: '8px', fontSize: '14px' }}>NPWPD * (13 digit angka)</label>
+            <label style={{ display: 'block', color: '#fff', marginBottom: '8px', fontSize: '14px' }}>
+              NPWPD * (13 digit angka)
+            </label>
             <input
               type="text"
               name="npwpd"
               value={formData.npwpd}
-              onChange={e => {
-                if (/^\d{0,13}$/.test(e.target.value)) handleChange(e);
+              onChange={(e) => {
+                if (/^[a-zA-Z0-9]{0,13}$/.test(e.target.value)) handleChange(e);
               }}
               required
               minLength={13}
               maxLength={13}
-              pattern="\d{13}"
-              title="NPWPD harus 13 digit angka"
-              placeholder="Contoh: 1234567890123"
+              pattern="[a-zA-Z0-9]{13}"
+              title="NPWPD harus 13 karakter (huruf/angka)"
+              placeholder="Contoh: ABC1234567890"
               style={{
                 width: '100%',
                 padding: '10px 12px',
@@ -252,7 +287,9 @@ const BuatLaporan = () => {
 
           {/* Hasil Pemeriksaan */}
           <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', color: '#fff', marginBottom: '8px', fontSize: '14px' }}>Hasil Pemeriksaan *</label>
+            <label style={{ display: 'block', color: '#fff', marginBottom: '8px', fontSize: '14px' }}>
+              Hasil Pemeriksaan *
+            </label>
             <textarea
               name="hasil_pemeriksaan"
               value={formData.hasil_pemeriksaan}
@@ -275,7 +312,9 @@ const BuatLaporan = () => {
 
           {/* Foto Dokumentasi */}
           <div style={{ marginBottom: '30px' }}>
-            <label style={{ display: 'block', color: '#fff', marginBottom: '8px', fontSize: '14px' }}>Foto Dokumentasi * (Maksimal 4 foto)</label>
+            <label style={{ display: 'block', color: '#fff', marginBottom: '8px', fontSize: '14px' }}>
+              Foto Dokumentasi * (Maksimal 4 foto)
+            </label>
             <input
               type="file"
               name="foto"
@@ -296,33 +335,51 @@ const BuatLaporan = () => {
             {previewUrls.length > 0 && (
               <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginTop: 12 }}>
                 {previewUrls.map((url, idx) => (
-                  <div key={idx} style={{ position: 'relative', cursor: 'pointer' }} onClick={() => { setShowPreview(true); setPreviewIdx(idx); }}>
-                    <img 
-                      src={url} 
-                      alt={`preview-${idx}`} 
-                      style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8, border: '1px solid #ccc' }} 
+                  <div
+                    key={idx}
+                    style={{ position: 'relative', cursor: 'pointer' }}
+                    onClick={() => {
+                      setShowPreview(true);
+                      setPreviewIdx(idx);
+                    }}
+                  >
+                    <img
+                      src={url}
+                      alt={`preview-${idx}`}
+                      style={{
+                        width: 80,
+                        height: 80,
+                        objectFit: 'cover',
+                        borderRadius: 8,
+                        border: '1px solid #ccc'
+                      }}
                     />
-                    <div style={{
-                      position: 'absolute',
-                      top: '-8px',
-                      right: '-8px',
-                      background: '#ef4444',
-                      color: '#fff',
-                      borderRadius: '50%',
-                      width: '20px',
-                      height: '20px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '12px',
-                      cursor: 'pointer'
-                    }} onClick={(e) => {
-                      e.stopPropagation();
-                      const newFiles = formData.foto.filter((_, i) => i !== idx);
-                      const newUrls = previewUrls.filter((_, i) => i !== idx);
-                      setFormData({...formData, foto: newFiles});
-                      setPreviewUrls(newUrls);
-                    }}>×</div>
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: '-8px',
+                        right: '-8px',
+                        background: '#ef4444',
+                        color: '#fff',
+                        borderRadius: '50%',
+                        width: '20px',
+                        height: '20px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '12px',
+                        cursor: 'pointer'
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const newFiles = formData.foto.filter((_, i) => i !== idx);
+                        const newUrls = previewUrls.filter((_, i) => i !== idx);
+                        setFormData({ ...formData, foto: newFiles });
+                        setPreviewUrls(newUrls);
+                      }}
+                    >
+                      ×
+                    </div>
                   </div>
                 ))}
               </div>
@@ -332,15 +389,18 @@ const BuatLaporan = () => {
             </div>
           </div>
 
-          {/* Submit */}
+          {/* Submit → buka modal */}
           <button
-            type="submit"
+            type="button"
+            onClick={() => setShowFaceModal(true)}
             disabled={loading || !location.lat || !location.lng}
             style={{
               width: '100%',
               padding: '12px',
-              background: loading || !location.lat || !location.lng ? 
-                'rgba(107, 114, 128, 0.5)' : 'rgba(59, 130, 246, 0.9)',
+              background:
+                loading || !location.lat || !location.lng
+                  ? 'rgba(107, 114, 128, 0.5)'
+                  : 'rgba(59, 130, 246, 0.9)',
               color: '#fff',
               border: 'none',
               borderRadius: '8px',
@@ -351,24 +411,39 @@ const BuatLaporan = () => {
               transition: 'all 0.2s'
             }}
           >
-            {loading ? 'Mengirim...' : 
-             !location.lat || !location.lng ? 'Menunggu Lokasi GPS...' : 
-             'Kirim Laporan'}
+            {loading
+              ? 'Mengirim...'
+              : !location.lat || !location.lng
+              ? 'Menunggu Lokasi GPS...'
+              : 'Kirim Laporan'}
           </button>
         </form>
       </div>
 
+      {/* FaceCheck Modal */}
+      <FaceCheck
+        open={showFaceModal}
+        onClose={() => setShowFaceModal(false)}
+        onSuccess={handleSubmit}
+      />
+
       {/* Lightbox Preview */}
       {showPreview && previewUrls.length > 0 && (
-        <div style={{
-          position: 'fixed',
-          top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.8)',
-          zIndex: 9999,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }} onClick={() => setShowPreview(false)}>
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.8)',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+          onClick={() => setShowPreview(false)}
+        >
           <img
             src={previewUrls[previewIdx]}
             alt={`preview-big-${previewIdx}`}
@@ -395,7 +470,9 @@ const BuatLaporan = () => {
               fontSize: '24px',
               cursor: 'pointer'
             }}
-          >×</button>
+          >
+            ×
+          </button>
         </div>
       )}
     </Layout>
