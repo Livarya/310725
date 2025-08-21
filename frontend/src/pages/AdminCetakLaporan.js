@@ -220,13 +220,12 @@ const AdminCetakLaporan = () => {
         {/* Data Objek Pemeriksaan */}
         <div style={{ marginBottom: '25px' }}>
         <table style={{ 
-  width: '100%', 
-  borderCollapse: 'collapse', 
-  fontSize: '12px',
-  backgroundColor: '#fff',  // pastikan latar putih
-  color: '#000'             // pastikan teks hitam
-}}>
-
+          width: '100%', 
+          borderCollapse: 'collapse', 
+          fontSize: '12px',
+          backgroundColor: '#fff',
+          color: '#000'
+        }}>
             <tbody>
               <tr>
                 <td style={{ width: '35%', padding: '5px 0', verticalAlign: 'top' }}>
@@ -282,6 +281,17 @@ const AdminCetakLaporan = () => {
           </p>
         </div>
 
+        {/* Tanggal di atas tanda tangan */}
+        <div style={{ textAlign: 'right', marginBottom: '20px' }}>
+          <p style={{ margin: '0', fontSize: '12px' }}>
+            Bandung, {new Date(laporan.createdAt).toLocaleDateString('id-ID', { 
+              day: 'numeric', 
+              month: 'long', 
+              year: 'numeric' 
+            })}
+          </p>
+        </div>
+
         {/* Tanda Tangan */}
         <div style={{ 
           display: 'flex', 
@@ -293,7 +303,6 @@ const AdminCetakLaporan = () => {
               Penanggung Jawab,
             </p>
             <p style={{ margin: '0', fontSize: '12px', textDecoration: 'underline' }}>
-              {/* Nama Penanggung Jawab bisa diisi manual atau dari data lain */}
               ( ________________________ )
             </p>
           </div>
@@ -315,17 +324,6 @@ const AdminCetakLaporan = () => {
               ( ________________________ )
             </p>
           </div>
-        </div>
-
-        {/* Tanggal */}
-        <div style={{ textAlign: 'center', marginTop: '30px' }}>
-          <p style={{ margin: '0', fontSize: '12px' }}>
-            Bandung, {new Date(laporan.createdAt).toLocaleDateString('id-ID', { 
-              day: 'numeric', 
-              month: 'long', 
-              year: 'numeric' 
-            })}
-          </p>
         </div>
       </div>
 
@@ -397,7 +395,6 @@ const AdminCetakLaporan = () => {
 
           {/* Foto - 2 foto per halaman */}
           <div>
-            {/* Bagi foto menjadi grup 2 foto per halaman */}
             {(() => {
               const fotoGroups = [];
               for (let i = 0; i < fotoArr.length; i += 2) {
@@ -435,20 +432,19 @@ const AdminCetakLaporan = () => {
                             textAlign: 'center'
                           }}
                         >
-                       <img
-  src={`http://localhost:5000/uploads/${foto}`}
-  alt={`Foto ${globalIdx + 1}`}
-  style={{
-    width: 'auto',
-    height: '10cm',
-    maxWidth: '100%',
-    objectFit: 'contain',
-    marginBottom: '10px',
-    border: '1px solid #ccc',
-    borderRadius: '8px'
-  }}
-/>
-
+                          <img
+                            src={`http://localhost:5000/uploads/${foto}`}
+                            alt={`Foto ${globalIdx + 1}`}
+                            style={{
+                              width: 'auto',
+                              height: '10cm',
+                              maxWidth: '100%',
+                              objectFit: 'contain',
+                              marginBottom: '10px',
+                              border: '1px solid #ccc',
+                              borderRadius: '8px'
+                            }}
+                          />
                           <p style={{ fontSize: '12px', margin: 0, fontWeight: 'bold' }}>
                             Foto {globalIdx + 1}
                           </p>
