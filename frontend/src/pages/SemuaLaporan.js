@@ -413,40 +413,51 @@ const SemuaLaporan = () => {
                   </button>
                   
                   {/* Tombol aksi jika status Belum Dicek */}
-                  {l.status === 'Belum Dicek' && (
-                    <div style={{ display: 'flex', gap: '8px', marginLeft: '16px' }} onClick={e => e.stopPropagation()}>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleStatus(l._id, 'Disetujui');
-                        }}
-                        style={{
-                          padding: '8px 12px',
-                          borderRadius: '8px',
-                          background: '#22c55e',
-                          color: '#fff',
-                          border: 'none',
-                          cursor: 'pointer',
-                          fontWeight: 600
-                        }}
-                      >Setujui</button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleStatus(l._id, 'Ditolak');
-                        }}
-                        style={{
-                          padding: '8px 12px',
-                          borderRadius: '8px',
-                          background: '#ef4444',
-                          color: '#fff',
-                          border: 'none',
-                          cursor: 'pointer',
-                          fontWeight: 600
-                        }}
-                      >Tolak</button>
-                    </div>
-                  )}
+                  {(l.status === 'Belum Dicek' || l.status === 'Tugas Diberikan') && (
+  <div style={{ display: 'flex', gap: '8px', marginLeft: '16px' }} onClick={e => e.stopPropagation()}>
+    <button
+      onClick={async (e) => {
+        e.stopPropagation();
+        await handleStatus(l._id, 'Disetujui');
+        const prefix = user?.role === 'superadmin' ? '/superadmin' : '/admin';
+        navigate(`${prefix}/laporan/${l._id}/disetujui`);
+      }}
+      style={{
+        padding: '8px 12px',
+        borderRadius: '8px',
+        background: '#22c55e',
+        color: '#fff',
+        border: 'none',
+        cursor: 'pointer',
+        fontWeight: 600
+      }}
+    >
+      Setujui
+    </button>
+
+    <button
+      onClick={async (e) => {
+        e.stopPropagation();
+        await handleStatus(l._id, 'Ditolak');
+        const prefix = user?.role === 'superadmin' ? '/superadmin' : '/admin';
+        navigate(`${prefix}/laporan/${l._id}/ditolak`);
+      }}
+      style={{
+        padding: '8px 12px',
+        borderRadius: '8px',
+        background: '#ef4444',
+        color: '#fff',
+        border: 'none',
+        cursor: 'pointer',
+        fontWeight: 600
+      }}
+    >
+      Tolak
+    </button>
+  </div>
+)}
+
+
                 </div>
               );
             }).filter(Boolean) // Remove null elements

@@ -1,0 +1,6 @@
+2025/08/26-15:46:11.013 5784 Reusing MANIFEST D:\bapbapbap\BAP-laporan\backend\.wwebjs_auth\session\Default\Local Storage\leveldb/MANIFEST-000001
+2025/08/26-15:46:11.128 5784 Recovering log #51
+2025/08/26-15:46:11.128 5784 Reusing old log D:\bapbapbap\BAP-laporan\backend\.wwebjs_auth\session\Default\Local Storage\leveldb/000051.log 
+2025/08/26-18:46:31.411 5904 Level-0 table #55: started
+2025/08/26-18:46:31.472 5904 Level-0 table #55: 11413 bytes OK
+2025/08/26-18:46:31.513 5904 Delete type=0 #51
