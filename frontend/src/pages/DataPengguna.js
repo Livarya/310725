@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import api, { API_BASE_URL } from '../config/api';
+import api, { BASE_URL } from '../config/api';
 import { useAuth } from '../context/AuthContext';
 import { FaEdit, FaTrash, FaPlus, FaSearch, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import AdminLayout from '../components/AdminLayout';
@@ -250,78 +250,97 @@ const DataPengguna = () => {
             color: '#fff'
           }}>
             <thead>
-              <tr style={{
-                background: 'rgba(30, 41, 59, 0.8)',
-                borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
-              }}>
-                <th style={{ padding: '12px 16px', textAlign: 'left' }}>Nama</th>
-                <th style={{ padding: '12px 16px', textAlign: 'left' }}>Username</th>
-                <th style={{ padding: '12px 16px', textAlign: 'left' }}>Email</th>
-                <th style={{ padding: '12px 16px', textAlign: 'left' }}>Role</th>
-                <th style={{ padding: '12px 16px', textAlign: 'left' }}>Status</th>
-                <th style={{ padding: '12px 16px', textAlign: 'right' }}>Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paged.map((user, index) => (
-                <tr key={user._id} style={{
-                  borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-                  '&:last-child': { borderBottom: 'none' }
-                }}>
-                  <td style={{ padding: '12px 16px' }}>{user.nama}</td>
-                  <td style={{ padding: '12px 16px' }}>{user.username}</td>
-                  <td style={{ padding: '12px 16px' }}>{user.email}</td>
-                  <td style={{ padding: '12px 16px' }}>{user.role}</td>
-                  <td style={{ padding: '12px 16px' }}>
-                    <span style={{
-                      padding: '4px 8px',
-                      borderRadius: '4px',
-                      background: user.status === 'aktif' ? 'rgba(74, 222, 128, 0.2)' : 'rgba(248, 113, 113, 0.2)',
-                      color: user.status === 'aktif' ? '#4ade80' : '#f87171',
-                      fontSize: '12px',
-                      fontWeight: '500'
-                    }}>
-                      {user.status === 'aktif' ? 'Aktif' : 'Nonaktif'}
-                    </span>
-                  </td>
-                  <td style={{ padding: '12px 16px', textAlign: 'right' }}>
-                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                      <button
-                        onClick={() => {
-                          setModalType('edit');
-                          setEditUser(user);
-                          setForm(user);
-                          setModalOpen(true);
-                        }}
-                        style={{
-                          padding: '6px',
-                          borderRadius: '6px',
-                          border: 'none',
-                          background: '#2563eb',
-                          color: '#fff',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        <FaEdit size={14} />
-                      </button>
-                      <button
-                        onClick={() => setDeleteId(user._id)}
-                        style={{
-                          padding: '6px',
-                          borderRadius: '6px',
-                          border: 'none',
-                          background: '#ef4444',
-                          color: '#fff',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        <FaTrash size={14} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
+  <tr>
+    <th style={{ padding: '12px 16px', textAlign: 'left' }}>Nama</th>
+    <th style={{ padding: '12px 16px', textAlign: 'left' }}>Username</th>
+    <th style={{ padding: '12px 16px', textAlign: 'left' }}>Email</th>
+    <th style={{ padding: '12px 16px', textAlign: 'left' }}>Role</th>
+    <th style={{ padding: '12px 16px', textAlign: 'left' }}>Status</th>
+    <th style={{ padding: '12px 16px', textAlign: 'left' }}>Foto Wajah</th> {/* 🔥 Tambah kolom */}
+    <th style={{ padding: '12px 16px', textAlign: 'right' }}>Aksi</th>
+  </tr>
+</thead>
+           <tbody>
+  {paged.map((user) => (
+    <tr key={user._id} style={{
+      borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+      '&:last-child': { borderBottom: 'none' }
+    }}>
+      <td style={{ padding: '12px 16px' }}>{user.nama}</td>
+      <td style={{ padding: '12px 16px' }}>{user.username}</td>
+      <td style={{ padding: '12px 16px' }}>{user.email}</td>
+      <td style={{ padding: '12px 16px' }}>{user.role}</td>
+      <td style={{ padding: '12px 16px' }}>
+        <span style={{
+          padding: '4px 8px',
+          borderRadius: '4px',
+          background: user.status === 'aktif' ? 'rgba(74, 222, 128, 0.2)' : 'rgba(248, 113, 113, 0.2)',
+          color: user.status === 'aktif' ? '#4ade80' : '#f87171',
+          fontSize: '12px',
+          fontWeight: '500'
+        }}>
+          {user.status === 'aktif' ? 'Aktif' : 'Nonaktif'}
+        </span>
+      </td>
+
+      {/* 🔥 Foto wajah */}
+      <td style={{ padding: '12px 16px' }}>
+        {user.faceImage ? (
+          <img
+            src={`${BASE_URL}${user.faceImage}`}
+            alt="face"
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: '50%',
+              objectFit: 'cover',
+              border: '1px solid rgba(255,255,255,0.2)'
+            }}
+          />
+        ) : (
+          <span style={{ fontSize: '12px', color: '#aaa' }}>Belum ada</span>
+        )}
+      </td>
+
+      <td style={{ padding: '12px 16px', textAlign: 'right' }}>
+        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+          <button
+            onClick={() => {
+              setModalType('edit');
+              setEditUser(user);
+              setForm(user);
+              setModalOpen(true);
+            }}
+            style={{
+              padding: '6px',
+              borderRadius: '6px',
+              border: 'none',
+              background: '#2563eb',
+              color: '#fff',
+              cursor: 'pointer'
+            }}
+          >
+            <FaEdit size={14} />
+          </button>
+          <button
+            onClick={() => setDeleteId(user._id)}
+            style={{
+              padding: '6px',
+              borderRadius: '6px',
+              border: 'none',
+              background: '#ef4444',
+              color: '#fff',
+              cursor: 'pointer'
+            }}
+          >
+            <FaTrash size={14} />
+          </button>
+        </div>
+      </td>
+    </tr>
+  ))}
+</tbody>
+
           </table>
         </div>
 

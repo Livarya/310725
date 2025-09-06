@@ -72,4 +72,16 @@ exports.verifyFace = async (req, res) => {
     console.error('❌ Error verifyFace:', err);
     res.status(500).json({ message: 'Server error' });
   }
+}; 
+
+// userController.js
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select('-password -resetPasswordToken -resetPasswordExpires');
+    res.json(users);
+  } catch (err) {
+    console.error('❌ Error getAllUsers:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
 };
+
