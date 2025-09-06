@@ -121,3 +121,69 @@ exports.updateWajibPajak = async (req, res) => {
     const sudah = await WajibPajak.find({ status: 'sudah' });
     res.json(sudah);
   };
+
+  exports.importExcel = async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "File tidak ditemukan" });
+      }
+  
+      // Baca buffer file Excel
+      const XLSX = require("xlsx");
+      const workbook = XLSX.read(req.file.buffer, { type: "buffer" });
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      const data = XLSX.utils.sheet_to_json(sheet);
+  
+      if (!data.length) {
+        return res.status(400).json({ message: "Tidak ada data untuk diimport" });
+      }
+  
+      // Mapping data sesuai field (handle variasi nama kolom)
+      const mappedData = data.map((row) => ({
+        nama: row.nama || row.NAMA || "",
+        npwp: row.npwp || row.NPWP || "",
+        nomor_wa: row.nomor_wa || row.NO_WA || row["NO WA"] || "",
+        status: (row.status || row.STATUS || "belum").toLowerCase() === "sudah" ? "sudah" : "belum",
+      }));
+  
+      await WajibPajak.insertMany(mappedData);
+  
+      res.json({ 
+        message: "Import berhasil", 
+        count: mappedData.length 
+      });
+    } catch (error) {
+      console.error("Import error:", error);
+      res.status(500).json({ 
+        message: "Gagal import data Excel", 
+        error: error.message 
+      });
+    }
+  };
+  
+
+  exports.downloadTemplate = async (req, res) => {
+    try {
+      // Contoh data header + 1 baris dummy
+      const data = [
+        { nama: "Contoh Nama", npwp: "123456789", nomor_wa: "08123456789", status: "belum" }
+      ];
+  
+      // Ubah JSON jadi worksheet
+      const worksheet = XLSX.utils.json_to_sheet(data);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Template");
+  
+      // Konversi ke buffer
+      const buffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
+  
+      // Set header untuk download
+      res.setHeader("Content-Disposition", "attachment; filename=template_wajibpajak.xlsx");
+      res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      res.send(buffer);
+    } catch (error) {
+      console.error("Gagal download template:", error);
+      res.status(500).json({ message: "Gagal membuat template Excel" });
+    }
+  };

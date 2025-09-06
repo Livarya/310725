@@ -36,6 +36,7 @@ const menu = [
     label: 'Wajib Pajak',
     icon: FaUsers,
     children: [
+      { label: 'Input Wajib Pajak', path: '/superadmin/wajib-pajak', icon: FaUsers },
       { label: 'Manage Wajib Pajak', path: '/superadmin/manajemen-wajibpajak', icon: FaUsers },
     ]
   },
