@@ -1,25 +1,26 @@
-import { useState, useEffect } from 'react';
-import api from '../config/api';
-import './wajibpajakpage.css';
-import SuperAdminLayout from '../components/SuperAdminLayout';
+import { useState, useEffect } from "react";
+import api from "../config/api";
+import "./wajibpajakpage.css";
+import SuperAdminLayout from "../components/SuperAdminLayout";
+import QrisModal from "../components/QrisModal";
 
 const WajibPajakPage = () => {
   const [form, setForm] = useState({
-    nama: '',
-    npwp: '',
-    nomor_wa: '',
-    status: 'belum',
+    nama: "",
+    npwp: "",
+    nomor_wa: "",
+    status: "belum",
   });
   const [data, setData] = useState([]);
   const [file, setFile] = useState(null);
 
   const fetchData = async () => {
     try {
-      const res = await api.get('/api/wajibpajak/semua');
+      const res = await api.get("/api/wajibpajak/semua");
       setData(res.data);
     } catch (err) {
-      console.error('Error fetching data:', err);
-      alert('Gagal mengambil data wajib pajak.');
+      console.error("Error fetching data:", err);
+      alert("Gagal mengambil data wajib pajak.");
     }
   };
 
@@ -34,13 +35,13 @@ const WajibPajakPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await api.post('/api/wajibpajak/tambah', form);
-      alert('Wajib Pajak berhasil ditambahkan!');
-      setForm({ nama: '', npwp: '', nomor_wa: '', status: 'belum' });
+      await api.post("/api/wajibpajak/tambah", form);
+      alert("Wajib Pajak berhasil ditambahkan!");
+      setForm({ nama: "", npwp: "", nomor_wa: "", status: "belum" });
       fetchData();
     } catch (err) {
-      console.error('Error adding data:', err);
-      alert('Gagal menambahkan data.');
+      console.error("Error adding data:", err);
+      alert("Gagal menambahkan data.");
     }
   };
 
@@ -50,35 +51,39 @@ const WajibPajakPage = () => {
 
   const handleImportExcel = async () => {
     if (!file) {
-      alert('Pilih file Excel terlebih dahulu!');
+      alert("Pilih file Excel terlebih dahulu!");
       return;
     }
 
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append("file", file);
 
     try {
-      const res = await api.post('/api/wajibpajak/import', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+      const res = await api.post("/api/wajibpajak/import", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
       alert(`${res.data.message} (${res.data.count} data)`);
       fetchData();
     } catch (err) {
-      console.error('Error import Excel:', err.response?.data || err.message);
-      alert('Gagal import data dari Excel: ' + (err.response?.data?.message || err.message));
+      console.error("Error import Excel:", err.response?.data || err.message);
+      alert(
+        "Gagal import data dari Excel: " +
+          (err.response?.data?.message || err.message)
+      );
     }
   };
 
   const handleDownloadTemplate = () => {
     const template = [
-      ['NAMA', 'NPWP', 'NO WA', 'STATUS'],
-      ['Contoh User', '1234567890', '08123456789', 'belum'],
+      ["NAMA", "NPWP", "NO WA", "STATUS"],
+      ["Contoh User", "1234567890", "08123456789", "belum"],
     ];
     const csvContent =
-      'data:text/csv;charset=utf-8,' + template.map(e => e.join(',')).join('\n');
-    const link = document.createElement('a');
+      "data:text/csv;charset=utf-8," +
+      template.map((e) => e.join(",")).join("\n");
+    const link = document.createElement("a");
     link.href = encodeURI(csvContent);
-    link.download = 'template_wajibpajak.csv';
+    link.download = "template_wajibpajak.csv";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -88,7 +93,7 @@ const WajibPajakPage = () => {
     <SuperAdminLayout>
       <div className="container">
         <h2>Input Wajib Pajak</h2>
-        <form onSubmit={handleSubmit} style={{ marginBottom: '20px' }}>
+        <form onSubmit={handleSubmit} style={{ marginBottom: "20px" }}>
           <input
             name="nama"
             placeholder="Nama"
@@ -117,7 +122,7 @@ const WajibPajakPage = () => {
           <button type="submit">Tambah</button>
         </form>
 
-        <div style={{ marginBottom: '20px' }}>
+        <div style={{ marginBottom: "20px" }}>
           <input type="file" accept=".xlsx,.xls,.csv" onChange={handleFileChange} />
           <button onClick={handleImportExcel}>Import Excel</button>
           <button onClick={handleDownloadTemplate}>Download Template</button>
@@ -131,14 +136,17 @@ const WajibPajakPage = () => {
               <th>NPWP</th>
               <th>No WA</th>
               <th>Status</th>
+              <th>Aksi</th>
             </tr>
           </thead>
           <tbody>
             {data.length === 0 ? (
               <tr>
-                <td colSpan="4" className="empty-state">
+                <td colSpan="5" className="empty-state">
                   <div className="empty-state-icon">📋</div>
-                  <div className="empty-state-text">Belum ada data wajib pajak</div>
+                  <div className="empty-state-text">
+                    Belum ada data wajib pajak
+                  </div>
                 </td>
               </tr>
             ) : (
@@ -149,8 +157,12 @@ const WajibPajakPage = () => {
                   <td>{d.nomor_wa}</td>
                   <td>
                     <span className={`status-badge status-${d.status}`}>
-                      {d.status === 'sudah' ? '✅ Sudah' : '⏳ Belum'}
+                      {d.status === "sudah" ? "✅ Sudah" : "⏳ Belum"}
                     </span>
+                  </td>
+                  <td>
+                    {/* FIXED: Kirim semua data termasuk _id */}
+                    <QrisModal data={d} />
                   </td>
                 </tr>
               ))

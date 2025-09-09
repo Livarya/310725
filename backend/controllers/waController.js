@@ -1,6 +1,5 @@
 const { client } = require('../config/whatsapp');
 
-// Fungsi bantu untuk ubah nomor 08 ➜ 62
 const formatNumber = (no) => {
   if (no.startsWith('0')) return '62' + no.slice(1);
   if (no.startsWith('+')) return no.replace('+', '');
@@ -15,25 +14,34 @@ exports.sendBlastMessage = async (req, res) => {
   }
 
   const failed = [];
+  const success = [];
 
   for (const no of numbers) {
-    const raw = formatNumber(no); // pastikan format nomor benar
-    const number = raw.includes('@c.us') ? raw : `${raw}@c.us`;
+    const raw = formatNumber(no);
 
     try {
-      await client.sendMessage(number, message);
+      const numId = await client.getNumberId(raw);
+      if (!numId) {
+        console.log(`❌ ${raw} tidak terdaftar WA`);
+        failed.push(raw);
+        continue;
+      }
+
+      await client.sendMessage(numId._serialized, message);
+      console.log(`✅ Pesan terkirim ke ${raw}`);
+      success.push(raw);
+
     } catch (err) {
-      console.error(`Gagal kirim ke ${number}:`, err.message);
-      failed.push(no);
+      console.error(`⚠️ Gagal kirim ke ${raw}:`, err.message);
+      failed.push(raw);
     }
   }
 
-  if (failed.length > 0) {
-    return res.status(207).json({
-      message: `Beberapa pesan gagal dikirim ke: ${failed.join(', ')}`,
-      failed,
-    });
-  }
-
-  return res.json({ message: 'Pesan berhasil dikirim ke semua nomor.' });
+  return res.json({
+    message: 'Blast selesai.',
+    total: numbers.length,
+    sukses: success.length,
+    gagal: failed.length,
+    failed,
+  });
 };

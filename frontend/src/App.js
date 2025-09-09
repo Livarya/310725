@@ -24,6 +24,7 @@ import WajibPajakPage from './pages/wajibpajakpage';
 import WajibPajakManagePage from './pages/WajibPajakManagePage';
 import AdminBeriInstruksi from './pages/AdminBeriIntruksi';
 import UserLihatInstruksi from './pages/UserLihatIntruksi';
+import StickerPage from './pages/StickerPage';
 
 const PrivateRoute = ({ children, role }) => {
   const { user } = useAuth();
@@ -47,6 +48,8 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
+                    {/* ✅ StickerPage bebas akses */}
+                    <Route path="/sticker/:id" element={<StickerPage />} />
 
           {/* 👤 User Routes */}
           <Route path="/dashboard" element={
