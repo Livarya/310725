@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
+import html2canvas from "html2canvas";
 import api from "../config/api";
 import "./StickerPage.css";
 
@@ -16,20 +17,20 @@ const StickerPage = () => {
       try {
         setLoading(true);
         setError(null);
-        
-        console.log("Fetching data for ID:", id);
-        
+
         const res = await api.get(`/api/wajibpajak/${id}`);
-        console.log("Response data:", res.data);
-        
         setWp(res.data);
       } catch (err) {
-        console.error("Gagal ambil data wajib pajak:", err);
-        
         if (err.response) {
-          setError(`Error ${err.response.status}: ${err.response.data?.message || 'Data tidak ditemukan'}`);
+          setError(
+            `Error ${err.response.status}: ${
+              err.response.data?.message || "Data tidak ditemukan"
+            }`
+          );
         } else if (err.request) {
-          setError("Tidak dapat terhubung ke server. Periksa koneksi internet Anda.");
+          setError(
+            "Tidak dapat terhubung ke server. Periksa koneksi internet Anda."
+          );
         } else {
           setError("Terjadi kesalahan yang tidak terduga.");
         }
@@ -56,9 +57,53 @@ const StickerPage = () => {
       @media print {
         body { margin: 0; }
         .no-print { display: none !important; }
+        .sticker-card {
+          width: 85mm !important;
+          height: 54mm !important;
+          box-shadow: none !important;
+          margin: 0 !important;
+          border: 1px solid #ccc !important;
+        }
       }
-    `
+    `,
   });
+
+  const handleDownload = async () => {
+    const element = componentRef.current;
+    const canvas = await html2canvas(element, { scale: 2 });
+    const link = document.createElement("a");
+    link.download = `sticker-${wp?.nama || "wp"}.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  };
+
+  const formatNPWP = (npwp) => {
+    if (!npwp) return "N/A";
+    if (npwp.length === 15 && !npwp.includes(".")) {
+      return npwp.replace(
+        /(\d{2})(\d{3})(\d{3})(\d{1})(\d{3})(\d{3})/,
+        "$1.$2.$3.$4-$5.$6"
+      );
+    }
+    return npwp;
+  };
+
+  const formatWhatsApp = (wa) => {
+    if (!wa) return "N/A";
+    const cleaned = wa.replace(/[^\d]/g, "");
+    if (cleaned.startsWith("62")) {
+      return `+${cleaned.substring(0, 2)} ${cleaned.substring(
+        2,
+        5
+      )}-${cleaned.substring(5, 9)}-${cleaned.substring(9)}`;
+    } else if (cleaned.startsWith("0")) {
+      return `+62 ${cleaned.substring(1, 4)}-${cleaned.substring(
+        4,
+        8
+      )}-${cleaned.substring(8)}`;
+    }
+    return wa;
+  };
 
   if (loading) {
     return (
@@ -76,9 +121,12 @@ const StickerPage = () => {
         <div className="error-card">
           <h2 className="error-title">Error</h2>
           <p>{error}</p>
-          <p style={{fontSize: '12px', marginTop: '8px'}}>ID: {id}</p>
+          <p style={{ fontSize: "12px", marginTop: "8px" }}>ID: {id}</p>
         </div>
-        <button className="retry-button" onClick={() => window.location.reload()}>
+        <button
+          className="retry-button"
+          onClick={() => window.location.reload()}
+        >
           Coba Lagi
         </button>
       </div>
@@ -91,7 +139,7 @@ const StickerPage = () => {
         <div className="not-found-card">
           <h2 className="error-title">Data Tidak Ditemukan</h2>
           <p>Data wajib pajak dengan ID tersebut tidak ditemukan.</p>
-          <p style={{fontSize: '12px', marginTop: '8px'}}>ID: {id}</p>
+          <p style={{ fontSize: "12px", marginTop: "8px" }}>ID: {id}</p>
         </div>
       </div>
     );
@@ -108,14 +156,6 @@ const StickerPage = () => {
 
         {/* Sticker Card */}
         <div ref={componentRef} className="sticker-card">
-          {/* Background Pattern */}
-          <div className="background-pattern">
-            <div className="pattern-circle-1"></div>
-            <div className="pattern-circle-2"></div>
-            <div className="pattern-circle-3"></div>
-          </div>
-
-          {/* Header */}
           <div className="sticker-header">
             <div className="header-content">
               <div className="header-left">
@@ -133,65 +173,64 @@ const StickerPage = () => {
             </div>
           </div>
 
-          {/* Content */}
           <div className="sticker-content">
             <div className="content-wrapper">
               <div className="name-section">
                 <p className="field-label">Nama Wajib Pajak</p>
                 <h3 className="name-value">{wp.nama}</h3>
               </div>
-              
               <div className="details-grid">
-                <div className="detail-item">
+                <div className="detail-item npwp-item">
                   <p className="detail-label">NPWP</p>
-                  <p className="detail-value">{wp.npwp}</p>
+                  <p className="detail-value">{formatNPWP(wp.npwp)}</p>
                 </div>
-                <div className="detail-item">
+                <div className="detail-item wa-item">
                   <p className="detail-label">WhatsApp</p>
-                  <p className="detail-value">{wp.nomor_wa}</p>
+                  <p className="detail-value">
+                    {formatWhatsApp(wp.nomor_wa)}
+                  </p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Footer */}
           <div className="sticker-footer">
             <div className="footer-content">
               <div className="status-text">
-                Status: <span className={`status-value ${wp.status === 'sudah' ? 'status-sudah' : 'status-belum'}`}>
-                  {wp.status === 'sudah' ? '✅ Sudah Lapor' : '⏳ Belum Lapor'}
+                Status:{" "}
+                <span
+                  className={`status-value ${
+                    wp.status === "sudah"
+                      ? "status-sudah"
+                      : "status-belum"
+                  }`}
+                >
+                  {wp.status === "sudah"
+                    ? "✅ Sudah Lapor"
+                    : "⏳ Belum Lapor"}
                 </span>
               </div>
               <div className="id-text">
-                ID: {wp._id.slice(-6)}
+                ID: {wp._id ? wp._id.slice(-6) : "N/A"}
               </div>
             </div>
           </div>
-
-          {/* Decorative Corner */}
-          <div className="decorative-corner"></div>
         </div>
 
         {/* Action Buttons */}
         <div className="action-buttons no-print">
           <button onClick={handlePrint} className="btn-primary">
-            <svg className="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-            </svg>
-            <span>Cetak Sticker</span>
+            🖨️ Cetak Sticker
           </button>
-          
-          <button onClick={() => window.history.back()} className="btn-secondary">
-            <svg className="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            <span>Kembali</span>
+          <button onClick={handleDownload} className="btn-success">
+            ⬇️ Download PNG
           </button>
-        </div>
-
-        {/* Info Text */}
-        <div className="info-text no-print">
-          <p>Sticker ini dapat dicetak langsung. Ukuran optimal untuk kertas sticker 85mm x 54mm.</p>
+          <button
+            onClick={() => window.history.back()}
+            className="btn-secondary"
+          >
+            ⬅️ Kembali
+          </button>
         </div>
       </div>
     </div>

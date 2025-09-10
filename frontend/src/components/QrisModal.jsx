@@ -23,7 +23,7 @@ const QrisModal = ({ data }) => {
     return <button className="qris-error">Error</button>;
   }
 
-  const qrValue = `https://f650c252754c.ngrok-free.app/sticker/${data._id}`;
+  const qrValue = `https://5ea7c9f57e3e.ngrok-free.app/sticker/${data._id}`;
 
   return (
     <>

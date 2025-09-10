@@ -9,6 +9,7 @@
     "axios": "^1.10.0",
     "date-fns": "^4.1.0",
     "face-api.js": "^0.22.2",
+    "html2canvas": "^1.4.1",
     "leaflet": "^1.9.4",
     "multer": "^2.0.2",
     "qrcode.react": "^4.2.0",
