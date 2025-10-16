@@ -49,7 +49,8 @@ exports.changePassword = async (req, res) => {
 
 exports.getAllUsers = async (req, res) => {
   try {
-    const users = await User.find({}, 'nama whatsappNumber'); // ambil nama dan nomor WA saja
+    // Ambil semua field user kecuali password dan token
+    const users = await User.find().select('-password -resetPasswordToken -resetPasswordExpires');
     res.status(200).json(users);
   } catch (err) {
     res.status(500).json({ message: 'Gagal mengambil data users', error: err.message });

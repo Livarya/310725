@@ -4,6 +4,7 @@ import api from "../config/api";
 export default function FaceCheck({ open, onClose, onSuccess }) {
   const videoRef = useRef(null);
   const [capturing, setCapturing] = useState(false);
+  const [registered, setRegistered] = useState(null);
 
   const startCamera = async () => {
     try {
@@ -11,6 +12,15 @@ export default function FaceCheck({ open, onClose, onSuccess }) {
       if (videoRef.current) videoRef.current.srcObject = stream;
     } catch (err) {
       alert("Gagal mengakses kamera");
+    }
+  };
+
+  const fetchStatus = async () => {
+    try {
+      const res = await api.get('/api/face');
+      setRegistered(res.data.registered);
+    } catch (err) {
+      setRegistered(false);
     }
   };
 
@@ -45,7 +55,10 @@ export default function FaceCheck({ open, onClose, onSuccess }) {
   };
 
   useEffect(() => {
-    if (open) startCamera();
+    if (open) {
+      startCamera();
+      fetchStatus();
+    }
   }, [open]);
 
   if (!open) return null; // ❌ modal tidak ditampilkan kalau open=false
@@ -66,12 +79,17 @@ export default function FaceCheck({ open, onClose, onSuccess }) {
           playsInline
           style={{ width: "100%", borderRadius: 8, marginBottom: 12 }}
         />
+        {registered === false && (
+          <div style={{ color: 'red', marginBottom: 12, fontSize: 14 }}>
+            Anda belum mendaftarkan wajah. Silakan registrasi wajah terlebih dahulu.
+          </div>
+        )}
         <button
           onClick={handleVerify}
-          disabled={capturing}
+          disabled={capturing || registered === false}
           style={{
-            background: "#28a745", color: "#fff", padding: "10px 20px",
-            border: "none", borderRadius: 6, cursor: "pointer"
+            background: registered === false ? '#aaa' : '#28a745', color: "#fff", padding: "10px 20px",
+            border: "none", borderRadius: 6, cursor: registered === false ? 'not-allowed' : 'pointer'
           }}
         >
           {capturing ? "Memverifikasi..." : "Verifikasi Sekarang"}

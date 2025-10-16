@@ -77,18 +77,26 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+  return new Promise((resolve) => {
     // Clear state
     setUser(null);
     setToken(null);
     setError(null);
-    
+
     // Clear localStorage
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    
-    console.log('User logged out, localStorage cleared');
-  };
+
+    console.log('✅ User logged out, localStorage cleared');
+
+    // Pastikan benar-benar null sebelum lanjut
+    setTimeout(() => {
+      resolve(true);
+    }, 150); // delay kecil agar React sempat update state
+  });
+};
+
 
   // Function untuk cek apakah user sudah login
   const isAuthenticated = () => {

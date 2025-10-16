@@ -18,22 +18,33 @@ import DataPengguna from './pages/DataPengguna';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import LogAktivitas from './pages/LogAktivitas';
-import BlastWhatsApp from './pages/BlastWhatsapp'; // ✅ import di sini
+import BlastWhatsApp from './pages/BlastWhatsapp';
 import './App.css';
 import WajibPajakPage from './pages/wajibpajakpage';
 import WajibPajakManagePage from './pages/WajibPajakManagePage';
 import AdminBeriInstruksi from './pages/AdminBeriIntruksi';
 import UserLihatInstruksi from './pages/UserLihatIntruksi';
 import StickerPage from './pages/StickerPage';
+import StickerAuthRedirect from './pages/StickerAuthRedirect';
+import Scanner from './pages/Scanner';
 
 const PrivateRoute = ({ children, role }) => {
   const { user } = useAuth();
-  if (!user) return <Navigate to="/" />;
+  
+  if (!user) {
+    // Simpan URL tujuan sebelum redirect ke login
+    if (window.location.pathname.startsWith('/sticker-view/')) {
+      localStorage.setItem('redirectAfterLogin', window.location.pathname);
+    }
+    return <Navigate to="/" />;
+  }
+  
   if (role && user.role !== role) {
     if (user.role === 'superadmin') return <Navigate to="/superadmin/laporan" />;
     if (user.role === 'admin') return <Navigate to="/admin/laporan" />;
     return <Navigate to="/dashboard" />;
   }
+  
   return children;
 };
 
@@ -48,8 +59,14 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
-                    {/* ✅ StickerPage bebas akses */}
-                    <Route path="/sticker/:id" element={<StickerPage />} />
+          
+          {/* ✅ Route QRIS Scan - Paksa logout & redirect ke login */}
+          <Route path="/sticker/:id" element={<StickerAuthRedirect />} />
+          
+          {/* ✅ Route Sticker Setelah Login - Protected */}
+          <Route path="/sticker-view/:id" element={
+            <PrivateRoute><StickerPage /></PrivateRoute>
+          } />
 
           {/* 👤 User Routes */}
           <Route path="/dashboard" element={
@@ -97,16 +114,12 @@ function App() {
           <Route path="/admin/laporan/:id/cetak" element={
             <PrivateRoute role="admin"><AdminCetakLaporan /></PrivateRoute>
           } />
-            <Route path="/admin/wajib-pajak" element={
+          <Route path="/admin/wajib-pajak" element={
             <PrivateRoute role="admin"><WajibPajakPage/></PrivateRoute>
           } /> 
           <Route path="/admin/intruksi" element={
             <PrivateRoute role="admin"><AdminBeriInstruksi/></PrivateRoute>
           } />
-          
-          
-
-          {/* ✅ Admin Blast WhatsApp */}
           <Route path="/admin/blast" element={
             <PrivateRoute role="admin"><BlastWhatsApp /></PrivateRoute>
           } />
@@ -143,19 +156,20 @@ function App() {
           <Route path="/superadmin/laporan/:id/cetak" element={
             <PrivateRoute role="superadmin"><AdminCetakLaporan /></PrivateRoute>
           } />
-            <Route path="/superadmin/wajib-pajak" element={
+          <Route path="/superadmin/wajib-pajak" element={
             <PrivateRoute role="superadmin"><WajibPajakPage /></PrivateRoute>
           } />
-               <Route path="/superadmin/manajemen-wajibpajak" element={
+          <Route path="/superadmin/manajemen-wajibpajak" element={
             <PrivateRoute role="superadmin"><WajibPajakManagePage/></PrivateRoute>
           } />
-           <Route path="/superadmin/intruksi" element={
+          <Route path="/superadmin/intruksi" element={
             <PrivateRoute role="superadmin"><AdminBeriInstruksi/></PrivateRoute>
           } />
-
-          {/* ✅ Superadmin Blast WhatsApp */}
           <Route path="/superadmin/blast" element={
             <PrivateRoute role="superadmin"><BlastWhatsApp /></PrivateRoute>
+          } />
+          <Route path="/superadmin/scanner" element={
+            <PrivateRoute role="superadmin"><Scanner /></PrivateRoute>
           } />
 
           {/* 🚧 Catch all */}

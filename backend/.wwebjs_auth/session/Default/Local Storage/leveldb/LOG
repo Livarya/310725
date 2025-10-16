@@ -1,0 +1,15 @@
+2025/10/16-18:16:10.358 3690 Reusing MANIFEST D:\bapbapbap\BAP-laporan\backend\.wwebjs_auth\session\Default\Local Storage\leveldb/MANIFEST-000001
+2025/10/16-18:16:10.359 3690 Recovering log #29
+2025/10/16-18:16:10.359 3690 Reusing old log D:\bapbapbap\BAP-laporan\backend\.wwebjs_auth\session\Default\Local Storage\leveldb/000029.log 
+2025/10/16-19:16:20.894 2358 Level-0 table #33: started
+2025/10/16-19:16:20.938 2358 Level-0 table #33: 13155 bytes OK
+2025/10/16-19:16:20.973 2358 Delete type=0 #29
+2025/10/16-19:16:20.974 2b6c Compacting 4@0 + 1@1 files
+2025/10/16-19:16:21.014 2b6c Generated table #34@0: 109 keys, 6420 bytes
+2025/10/16-19:16:21.014 2b6c Compacted 4@0 + 1@1 files => 6420 bytes
+2025/10/16-19:16:21.036 2b6c compacted to: files[ 0 1 1 0 0 0 0 ]
+2025/10/16-19:16:21.038 2b6c Delete type=2 #21
+2025/10/16-19:16:21.038 2b6c Delete type=2 #24
+2025/10/16-19:16:21.038 2b6c Delete type=2 #27
+2025/10/16-19:16:21.039 2b6c Delete type=2 #30
+2025/10/16-19:16:21.039 2b6c Delete type=2 #33

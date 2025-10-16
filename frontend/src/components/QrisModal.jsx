@@ -23,7 +23,8 @@ const QrisModal = ({ data }) => {
     return <button className="qris-error">Error</button>;
   }
 
-  const qrValue = `https://5ea7c9f57e3e.ngrok-free.app/sticker/${data._id}`;
+  // ✅ QR Code mengarah ke route yang akan redirect ke login
+  const qrValue = `https://78a3733e6e29.ngrok-free.app/sticker/${data._id}`;
 
   return (
     <>
@@ -35,7 +36,7 @@ const QrisModal = ({ data }) => {
         QRIS
       </button>
 
-      {/* Modal - Fixed positioning to center */}
+      {/* Modal */}
       {open && (
         <div className="qris-overlay" onClick={() => setOpen(false)}>
           <div className="qris-modal" onClick={(e) => e.stopPropagation()}>
@@ -59,6 +60,13 @@ const QrisModal = ({ data }) => {
                   />
                 </div>
                 <p className="qr-help">Scan untuk melihat sticker</p>
+                <p className="qr-info" style={{
+                  fontSize: '11px',
+                  color: '#64748b',
+                  marginTop: '4px'
+                }}>
+                  📱 Harus login terlebih dahulu
+                </p>
               </div>
 
               {/* Info */}
@@ -110,8 +118,44 @@ const QrisModal = ({ data }) => {
                   Cetak
                 </button>
 
+                <button
+                  className="action-btn btn-download"
+                  onClick={() => {
+                    // Cari elemen SVG QRCode
+                    const svg = document.querySelector('.qr-wrapper svg');
+                    if (!svg) return;
+                    
+                    // Buat image dari SVG
+                    const serializer = new XMLSerializer();
+                    const svgStr = serializer.serializeToString(svg);
+                    const blob = new Blob([svgStr], { type: 'image/svg+xml' });
+                    const url = URL.createObjectURL(blob);
+                    const img = new window.Image();
+                    
+                    img.onload = function() {
+                      const canvas = document.createElement('canvas');
+                      canvas.width = svg.width.baseVal.value || 100;
+                      canvas.height = svg.height.baseVal.value || 100;
+                      const ctx = canvas.getContext('2d');
+                      ctx.drawImage(img, 0, 0);
+                      const pngUrl = canvas.toDataURL('image/png');
+                      const a = document.createElement('a');
+                      a.href = pngUrl;
+                      a.download = `QRIS_${data.nama || 'qris'}.png`;
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+                      URL.revokeObjectURL(url);
+                    };
+                    img.src = url;
+                  }}
+                >
+                  Download QRIS
+                </button>
+
+                {/* ✅ Tombol Lihat langsung ke sticker-view (protected) */}
                 <Link
-                  to={`/sticker/${data._id}`}
+                  to={`/sticker-view/${data._id}`}
                   className="action-btn btn-view"
                 >
                   Lihat

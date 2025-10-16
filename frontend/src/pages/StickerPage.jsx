@@ -150,7 +150,7 @@ const StickerPage = () => {
       <div className="sticker-container">
         {/* Preview Info */}
         <div className="preview-info no-print">
-          <h1 className="preview-title">Sticker Wajib Pajak</h1>
+          <h1 className="preview-title">Data Wajib Pajak</h1>
           <p className="preview-subtitle">Preview sticker untuk {wp.nama}</p>
         </div>
 

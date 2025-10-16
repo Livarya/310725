@@ -20,6 +20,8 @@ const AdminLayout = ({ children, title }) => {
     { label: 'Wajib Pajak', path: '/superadmin/wajib-pajak', icon: FaUsers },
     { label: 'Data Pengguna', path: '/admin/users', icon: FaUsers },
     { label: 'Log Aktivitas', path: '/admin/logs', icon: FaHistory },
+    // Tambahkan menu Scanner
+    { label: 'Scanner', path: '/superadmin/scanner', icon: FaClipboardList },
     { label: 'Logout', path: '/logout', icon: FaSignOutAlt, action: () => { logout(); navigate('/'); } },
   ];
 

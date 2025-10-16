@@ -18,6 +18,8 @@ const statusOptions = [
 const DataPengguna = () => {
   const { token, user } = useAuth();
   const [users, setUsers] = useState([]);
+  const [showImage, setShowImage] = useState(false);
+  const [imageUrl, setImageUrl] = useState('');
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -294,7 +296,12 @@ const DataPengguna = () => {
               height: 40,
               borderRadius: '50%',
               objectFit: 'cover',
-              border: '1px solid rgba(255,255,255,0.2)'
+              border: '1px solid rgba(255,255,255,0.2)',
+              cursor: 'pointer'
+            }}
+            onClick={() => {
+              setImageUrl(`${BASE_URL}${user.faceImage}`);
+              setShowImage(true);
             }}
           />
         ) : (
@@ -484,6 +491,23 @@ const DataPengguna = () => {
       @media(max-width:800px){.card-box{padding:18px 4vw}.filter-bar{flex-direction:column;gap:12px}}
       @media(max-width:600px){.card-box{padding:8px 2vw} .modal{min-width:90vw;padding:16px 4vw} th,td{padding:6px 4px;font-size:13px} .btn-primary{width:100%;justify-content:center} .icon-btn{font-size:22px;padding:8px 12px} .filter-bar{flex-direction:column;gap:12px}}
       `}</style>
+      {/* Modal Pop Out Foto Wajah */}
+      {showImage && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.7)', display: 'flex',
+          justifyContent: 'center', alignItems: 'center', zIndex: 9999
+        }} onClick={() => setShowImage(false)}>
+          <img
+            src={imageUrl}
+            alt="face"
+            style={{
+              maxWidth: '90vw', maxHeight: '90vh', borderRadius: 16,
+              boxShadow: '0 4px 32px rgba(0,0,0,0.5)', background: '#fff', padding: 8
+            }}
+          />
+        </div>
+      )}
     </Layout>
   );
 };

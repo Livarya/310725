@@ -55,6 +55,7 @@ const menu = [
     icon: FaTools,
     children: [
       { label: 'Blast WhatsApp', path: '/superadmin/blast', icon: FaPaperPlane },
+       { label: 'Scanner', path: '/superadmin/scanner', icon: FaClipboardList },
     ]
   },
 
